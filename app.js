@@ -1,9 +1,8 @@
-//TODO - let this file handle connections.
-//Until then...
 
-require('./server.js');
+//Openshift networking voodoo magic.
 
-/*const http         = require('http'),
+//*
+const http         = require('http'),
       fs           = require('fs'),
       path         = require('path'),
       contentTypes = require('./utils/content-types'),
@@ -16,6 +15,11 @@ let server = http.createServer(function (req, res) {
     url += 'index.html';
   }
 
+  //We're going to try and load in our server right here. My networking code has been commented out.
+  //Let's hope this works
+
+  require('./server.js');
+
   // IMPORTANT: Your application HAS to respond to GET /health with status 200
   //            for OpenShift health monitoring
 
@@ -27,7 +31,7 @@ let server = http.createServer(function (req, res) {
     res.setHeader('Cache-Control', 'no-cache, no-store');
     res.end(JSON.stringify(sysInfo[url.slice(6)]()));
   } else {
-    fs.readFile('./static' + url, function (err, data) {
+    fs.readFile('./public' + url, function (err, data) {
       if (err) {
         res.writeHead(404);
         res.end('Not found');

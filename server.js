@@ -3,8 +3,8 @@
 // ~~~~~~~~~~~~~~~ Declaration of variables ~~~~~~~~~~~~~~~
 
 // Framework
-var app =  require('express')();
-var http = require('http').Server(app);
+//var app =  require('express')();
+//var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 // Timing Logic
@@ -153,18 +153,18 @@ function gameLoop() {
 // ~~~~~~~~~~~~~~~ Initialization and Start ~~~~~~~~~~~~~~~
 
 // so we can serve static files at this resteraunt
-app.use(require('express').static('public'));
+//app.use(require('express').static('public'));
 
 // route, route, route your bytes, gently down the stream...
-app.get('/', function(req, res){
-	res.sendFile(__dirname + '/index.html');
-	});
+// app.get('/', function(req, res){
+// 	res.sendFile(__dirname + '/index.html');
+// 	});
 
 // TODO - get this out of here.
-app.get('/health', function(req, res){
-  res.writeHead(200);
-  res.end();
-});
+// app.get('/health', function(req, res){
+//   res.writeHead(200);
+//   res.end();
+// });
 
 // Defining game logic for Socket.io
 io.on('connection',function(socket){
@@ -197,6 +197,6 @@ gameLoop();
 //TODO - get this outa here.
 
 //Aight. Forget all this fanciness. We listen on port 80. Okay?
-http.listen(/*process.env.NODE_PORT || 3000*/80,function(){
-	console.log("listening on *:3000");
-});
+// http.listen(/*process.env.NODE_PORT || 3000*/80,function(){
+// 	console.log("listening on *:3000");
+// });
