@@ -196,6 +196,7 @@ gameLoop();
 // The machine is running, Start putting things into it.
 //TODO - get this outa here.
 
-http.listen(process.env.NODE_PORT || 3000,function(){
+//Aight. Forget all this fanciness. We listen on port 80. Okay?
+http.listen(/*process.env.NODE_PORT || 3000*/80,function(){
 	console.log("listening on *:3000");
 });
