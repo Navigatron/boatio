@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Socket.IO chat</title>
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript" src="./clientLanding.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<div id="landing">
+			<div id="namediv">
+				<form  id="nameform" onsubmit="onNameChosen();" action="javascript:void(0);">
+					<h1><b>WHAT</b> is yer <b>NAME?</b></h1>
+					<div class="flexContainer">
+						<input id="namebox" autocomplete="off" />
+					</div>
+					<div class="flexContainer">
+						<button>Select Name</button>
+					</div>
+				</form>
+			</div>
+			<div id="questdiv" style="display: none">
+				<h1><b>WHAT</b> is yer <b>QUEST?</b></h1>
+				<div class="flexContainer">
+					<button onClick="onQuestChosen('ffa')">Free for all!</button>
+				</div>
+			</div>
+			<div id="colordiv" style="display: none">
+				<h1><b>WHAT</b> is yer <b>FAVOURITE COLOR?</b></h1>
+				<div class="flexContainer">
+					<button onClick="onColorChosen('#FFF')">I am WHITE.</button>
+				</div>
+				<div class="flexContainer">
+					<button onClick="onColorChosen('#000')">As dark as my soul.</button>
+				</div>
+				<div class="flexContainer">
+					<button onClick="onColorChosen('#F7D')">erm... pink?</button>
+				</div>
+			</div>
+		</div>
+		<div id='game' style="display: none;">
+			<canvas id="canvas"></canvas>
+			<canvas id="bcanvas"></canvas>
+		</div>
+		<div id='gameResources' style="display: none;">
+			<img id='square' src="/square.png"></img>
+		</div>
+	</body>
+</html>

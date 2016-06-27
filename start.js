@@ -1,3 +1,4 @@
+//It looks like this fires up app.js. We'll leave this alone and instead work on app.js.
 const cluster = require('cluster'),
       stopSignals = [
         'SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
