@@ -160,6 +160,12 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 	});
 
+// TODO - get this out of here.
+app.get('/health', function(req, res){
+  res.writeHead(200);
+  res.end();
+});
+
 // Defining game logic for Socket.io
 io.on('connection',function(socket){
 
@@ -188,6 +194,8 @@ io.on('connection',function(socket){
 gameLoop();
 
 // The machine is running, Start putting things into it.
-http.listen(3000,function(){
+//TODO - get this outa here.
+
+http.listen(process.env.NODE_PORT || 3000,function(){
 	console.log("listening on *:3000");
 });
