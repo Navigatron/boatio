@@ -3,7 +3,7 @@
 // ~~~~~~~~~~~~~~~ Declaration of Variables ~~~~~~~~~~~~~~~
 
 // The cause (and solution) of all our problems.
-var socket = io();
+var socket = io.connect("http://boatio-boatio.rhcloud.com/");
 // Who does the viewport look at?
 var playerToWatch;
 // All the players in game.

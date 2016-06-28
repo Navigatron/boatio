@@ -3,37 +3,10 @@
 // ~~~~~~~~~~~~~~~ Declaration of variables ~~~~~~~~~~~~~~~
 
 // Framework
-//var app =  require('express')();
-//var http = require('http').Server(app);
-//var io = require('socket.io')(http);
+var app =  require('express')();
+var http = require('http').createServer(app);
+var io = require('socket.io').listen(http);
 
-//TODO - LESS SPAGHETTI
-module.exports = function(http){
-	var io = require('socket.io')(http);
-	// TODO OH GOD THE SPAGHETTI
-	io.on('connection',function(socket){
-
-		// When a user connects.
-		onNewPlayer(socket);
-
-		// When a user disconnects.
-		socket.on('disconnect',function(){
-			console.log(socket.id+' disconnected');
-			io.emit('player disconnected', socket.id);
-			delete players[socket.id];
-		});
-
-		// When a user presses a relevent key.
-		socket.on('keychange', function(keycode, state){
-			if(players[socket.id]){
-				players[socket.id]['_'+keycode] = state;
-				//console.log('User '+socket.id+' sets '+keycode+' to '+state);
-			}else{
-				console.log(socket.id + 'Sent keycode before existing');
-			}
-		});
-	});
-};
 
 // Timing Logic
 var lastUpdate;
@@ -181,29 +154,49 @@ function gameLoop() {
 // ~~~~~~~~~~~~~~~ Initialization and Start ~~~~~~~~~~~~~~~
 
 // so we can serve static files at this resteraunt
-//app.use(require('express').static('public'));
+app.use(require('express').static('public'));
 
 // route, route, route your bytes, gently down the stream...
-// app.get('/', function(req, res){
-// 	res.sendFile(__dirname + '/index.html');
-// 	});
+app.get('/', function(req, res){
+	res.sendFile(__dirname + '/index.html');
+	});
 
 // TODO - get this out of here.
-// app.get('/health', function(req, res){
-//   res.writeHead(200);
-//   res.end();
-// });
+app.get('/health', function(req, res){
+  res.writeHead(200);
+  res.end();
+});
 
 // Defining game logic for Socket.io
 
+io.on('connection',function(socket){
+
+	// When a user connects.
+	onNewPlayer(socket);
+
+	// When a user disconnects.
+	socket.on('disconnect',function(){
+		console.log(socket.id+' disconnected');
+		io.emit('player disconnected', socket.id);
+		delete players[socket.id];
+	});
+
+	// When a user presses a relevent key.
+	socket.on('keychange', function(keycode, state){
+		if(players[socket.id]){
+			players[socket.id]['_'+keycode] = state;
+			//console.log('User '+socket.id+' sets '+keycode+' to '+state);
+		}else{
+			console.log(socket.id + 'Sent keycode before existing');
+		}
+	});
+});
 
 // The machine is constructed, Start it up!
 gameLoop();
 
-// The machine is running, Start putting things into it.
-//TODO - get this outa here.
+// Tell our server to listen to the great beyond - put some input into our now running machine.
 
-//Aight. Forget all this fanciness. We listen on port 80. Okay?
-// http.listen(/*process.env.NODE_PORT || 3000*/80,function(){
-// 	console.log("listening on *:3000");
-// });
+server.listen(process.env.OPENSHIFT_NODEJS_PORT || 3000, process.env.OPENSHIFT_NODEJS_IP, function(){
+    console.log('Express server listening on port ' + app.get('port'));
+});

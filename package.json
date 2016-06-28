@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "description": "A realtime multiplayer socket.io based game",
   "private": true,
-  "main": "start.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node --use_strict start.js"
+    "start": "node server.js"
   },
-  "author": "anonymous",
+  "author": "Ethan Witherington <roboticstranger@gmail.com>",
   "dependencies": {
     "express": "~4.10.2",
     "socket.io": "~1.4.6"

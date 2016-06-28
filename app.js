@@ -1,5 +1,5 @@
 
-//Openshift networking voodoo magic.
+//Unused
 
 //*
 const http         = require('http'),
@@ -14,11 +14,6 @@ let server = http.createServer(function (req, res) {
   if (url == '/') {
     url += 'index.html';
   }
-
-  //We're going to try and load in our server right here. My networking code has been commented out.
-  //Let's hope this works
-
-  require('./server.js');
 
   // IMPORTANT: Your application HAS to respond to GET /health with status 200
   //            for OpenShift health monitoring
