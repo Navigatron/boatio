@@ -10,6 +10,29 @@
 //TODO - LESS SPAGHETTI
 module.exports = function(http){
 	var io = require('socket.io')(http);
+	// TODO OH GOD THE SPAGHETTI
+	io.on('connection',function(socket){
+
+		// When a user connects.
+		onNewPlayer(socket);
+
+		// When a user disconnects.
+		socket.on('disconnect',function(){
+			console.log(socket.id+' disconnected');
+			io.emit('player disconnected', socket.id);
+			delete players[socket.id];
+		});
+
+		// When a user presses a relevent key.
+		socket.on('keychange', function(keycode, state){
+			if(players[socket.id]){
+				players[socket.id]['_'+keycode] = state;
+				//console.log('User '+socket.id+' sets '+keycode+' to '+state);
+			}else{
+				console.log(socket.id + 'Sent keycode before existing');
+			}
+		});
+	});
 };
 
 // Timing Logic
@@ -172,28 +195,7 @@ function gameLoop() {
 // });
 
 // Defining game logic for Socket.io
-io.on('connection',function(socket){
 
-	// When a user connects.
-	onNewPlayer(socket);
-
-	// When a user disconnects.
-	socket.on('disconnect',function(){
-		console.log(socket.id+' disconnected');
-		io.emit('player disconnected', socket.id);
-		delete players[socket.id];
-	});
-
-	// When a user presses a relevent key.
-	socket.on('keychange', function(keycode, state){
-		if(players[socket.id]){
-			players[socket.id]['_'+keycode] = state;
-			//console.log('User '+socket.id+' sets '+keycode+' to '+state);
-		}else{
-			console.log(socket.id + 'Sent keycode before existing');
-		}
-	});
-});
 
 // The machine is constructed, Start it up!
 gameLoop();
