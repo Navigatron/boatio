@@ -5,7 +5,12 @@
 // Framework
 //var app =  require('express')();
 //var http = require('http').Server(app);
-var io = require('socket.io')(http);
+//var io = require('socket.io')(http);
+
+//TODO - LESS SPAGHETTI
+module.exports = function(http){
+	var io = require('socket.io')(http);
+};
 
 // Timing Logic
 var lastUpdate;
