@@ -1,12 +1,24 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Socket.IO chat</title>
+		<title>BOATIO</title>
+		<!-- socket.io object code -->
 		<script src="/socket.io/socket.io.js"></script>
+		<!-- This handles selection of everything before we actually join a server-->
 		<script type="text/javascript" src="./clientLanding.js"></script>
 		<link rel="stylesheet" type="text/css" href="./style.css">
+		<!-- Google analytics tacking code - more info is good. -->
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-57374792-4', 'auto');
+			ga('send', 'pageview');
+		</script>
 	</head>
 	<body>
+		<!---->
 		<div id="landing">
 			<div id="namediv">
 				<form  id="nameform" onsubmit="onNameChosen();" action="javascript:void(0);">
@@ -38,6 +50,7 @@
 				</div>
 			</div>
 		</div>
+		<!---->
 		<div id='game' style="display: none;">
 			<canvas id="canvas"></canvas>
 			<canvas id="bcanvas"></canvas>

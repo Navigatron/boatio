@@ -197,6 +197,6 @@ gameLoop();
 
 // Tell our server to listen to the great beyond - put some input into our now running machine.
 
-server.listen(process.env.OPENSHIFT_NODEJS_PORT || 3000, process.env.OPENSHIFT_NODEJS_IP, function(){
-    console.log('Express server listening on port ' + app.get('port'));
+http.listen(process.env.OPENSHIFT_NODEJS_PORT || 3000, process.env.OPENSHIFT_NODEJS_IP, function(){
+    console.log('Express server listening on port ' + (process.env.OPENSHIFT_NODEJS_PORT || 3000));
 });
