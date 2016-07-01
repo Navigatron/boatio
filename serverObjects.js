@@ -27,9 +27,13 @@ function rigidBody(x, y, r, mass, topSpeed, topRotSpeed){
         y: 0.9,
         r: 0.9
     };
+    this.acceleration = {
+        move: 10,
+        rotate: 90
+    };
     this.mass = mass;
     this.topSpeed = topSpeed;
-    this.momentOfInertia = 0;
+    this.momentOfInertia = 1;
     this.topRotSpeed = topRotSpeed;
 }
 rigidBody.prototype.addLinearForce = function(x, y){
@@ -37,7 +41,7 @@ rigidBody.prototype.addLinearForce = function(x, y){
     this.velocity.y += y/this.mass;
 };
 rigidBody.prototype.addRotationalForce = function(r){
-
+    this.rotation += r/this.momentOfInertia;
 };
 rigidBody.prototype.addMass = function(mass, x, y){
     this.mass += mass;
@@ -53,9 +57,9 @@ rigidBody.prototype.step = function(deltaTime){
         this.velocity[key] -= Math.max(Math.abs(linearDragPerSecond),Math.abs(quadraticDragPerSecond)) * deltaTime * (this.velocity[key]?this.velocity[key]<0?-1:1:0);
     }
     //Move
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
-    this.rotation += this.velocity.r;
+    this.position.x += this.velocity.x * deltaTime;
+    this.position.y += this.velocity.y * deltaTime;
+    this.rotation += this.velocity.r * deltaTime;
 };
 rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity){
     return actualVelocity==0?0:1/maximumVelocity*actualVelocity*actualVelocity;
@@ -73,15 +77,31 @@ function shipBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
 
 //A playerBrick is a shipBrick
 playerBrick.prototype = shipBrick;
-playerBrick.prototype.constructor = shipBrick;
-function playerBrick(){
+playerBrick.prototype.constructor = playerBrick;
+function playerBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id){
+    this.prototype.constructor.call(this, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+    //Our ID
+    this.id = id;
     // User input keys
     this._87= false;
     this._65= false;
     this._83= false;
     this._68= false;
     this.update = function(){
-        //ahh... now what
+        if(this._65)//A
+            this.vr += this.acceleration.rotate*deltaTime;
+        if(this._68)//D
+            this.vr -= this.acceleration.rotate*deltaTime;
+        //TODO This is attracts GC. We don't want any GC. Make it go away.
+        var vector = {x: Math.cos(this.rotation*(Math.PI/180)), y: Math.sin(this.rotation*(Math.PI/180))};
+		if(this._87){//W
+			this.vx += vector.x*this.movAccel*deltaTime;
+			this.vy += vector.y*this.movAccel*deltaTime;
+		}
+		if(this._83){//S
+			this.vx -= vector.x*this.movAccel*deltaTime;
+			this.vy -= vector.y*this.movAccel*deltaTime;
+		}
     };
 }
 
