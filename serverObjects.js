@@ -97,6 +97,5 @@ module.exports = {
     gameObject: gameObject,
     shipBrick: shipBrick,
     playerBrick: playerBrick,
-    hullBrick: hullBrick,
-    test: test
+    hullBrick: hullBrick
 };
