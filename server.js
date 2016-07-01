@@ -20,8 +20,6 @@ var players = {};
 // TODO - move this to a seperate File - In progress
 
 var sO = require('./serverObjects.js');
-sO.test();
-var sb = new sO.shipBrick(1,2,3,4,5);
 
 var player = function(id){
 	// Keep track of key presses
