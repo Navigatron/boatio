@@ -1,41 +1,41 @@
 'use strict';
 
-function gameObject(X, Y, r){
-    this.position = {
-        x: X,
-        y: Y
-    };
-    this.rotation = r;
-    this.update = function(){return;};
+class gameObject{
+    constructor(X, Y, r){
+        this.position = {
+            x: X,
+            y: Y
+        };
+        this.rotation = r;
+        this.update = function(){return;};
+    }
 }
 
-//A rigidBody is a gameObject.
-// rigidBody.prototype = gameObject; //To be removed if the next commit works
-// rigidBody.prototype.constructor = rigidBody;
-function rigidBody(x, y, r, mass, topSpeed, topRotSpeed){
-    // rigidBody.prototype.constructor.call(this, x, y, r); //The old inheritance method
-    gameObject.call(this, x, y, r); //The new inheritance method.
-    this.velocity = {
-        x: 0,
-        y: 0,
-        r: 0,
-        magnitude : function(){
-            return Math.sqrt(this.x*this.x + this.y*this.y);
-        }
-    };
-    this.dampening = {
-        x: 0.9,
-        y: 0.9,
-        r: 0.9
-    };
-    this.acceleration = {
-        move: 10,
-        rotate: 90
-    };
-    this.mass = mass;
-    this.topSpeed = topSpeed;
-    this.momentOfInertia = 1;
-    this.topRotSpeed = topRotSpeed;
+//Alright boys and girls, we're going to go full 2016 on this code right here.
+//Javascript was not intended for this. Don't try this at home.
+class rigidBody extends gameObject{
+    constructor(x, y, r, mass, topSpeed, topRotSpeed){
+        //Classes! Extending! Constructors! Super! Oh snap!
+        super(x, y, r);
+        this.velocity = {
+            x: 0,
+            y: 0,
+            r: 0
+        };
+        this.dampening = {
+            x: 0.9,
+            y: 0.9,
+            r: 0.9
+        };
+        this.acceleration = {
+            move: 10,
+            rotate: 90
+        };
+        this.mass = mass;
+        this.topSpeed = topSpeed;
+        this.momentOfInertia = 1;
+        this.topRotSpeed = topRotSpeed;
+    }
 }
 rigidBody.prototype.addLinearForce = function(x, y){
     this.velocity.x += x/this.mass;
@@ -47,14 +47,14 @@ rigidBody.prototype.addRotationalForce = function(r){
 rigidBody.prototype.addMass = function(mass, x, y){
     this.mass += mass;
 };
-rigidBody.prototype.calculateMomentOfInertia = function(masses){
-
+rigidBody.prototype.magnitude = function(x, y){
+    return Math.sqrt(x*x+y*y);
 };
 rigidBody.prototype.step = function(deltaTime){
     //Drag
     for(var key in this.velocity){
         var linearDragPerSecond = this.velocity[key] * this.dampening[key];
-        var quadraticDragPerSecond = getQuadraticDrag((this.velocity[key]/this.velocity.magnitude()*this.topSpeed),this.velocity[key]);
+        var quadraticDragPerSecond = this.getQuadraticDrag((this.velocity[key]/this.magnitude(this.velocity.x, this.velocity.y)*this.topSpeed),this.velocity[key]);
         this.velocity[key] -= Math.max(Math.abs(linearDragPerSecond),Math.abs(quadraticDragPerSecond)) * deltaTime * (this.velocity[key]?this.velocity[key]<0?-1:1:0);
     }
     //Move
@@ -67,51 +67,47 @@ rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity)
 };
 
 //A shipBrick is a rigidBody
-// shipBrick.prototype = rigidBody;
-// shipBrick.prototype.constructor = shipBrick;
-function shipBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
-    // this.prototype.constructor.call(this, x, y, r, mass, topSpeed, topRotSpeed);
-    rigidBody.call(this, x, y, r, mass, topSpeed, topRotSpeed);
-    this.health = health;
-    this.sizex = sizex;
-    this.sizey = sizey;
+class shipBrick extends rigidBody{
+    constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
+        super(x, y, r, mass, topSpeed, topRotSpeed);
+        this.health = health;
+        this.sizex = sizex;
+        this.sizey = sizey;
+    }
 }
 
 //A playerBrick is a shipBrick
-// playerBrick.prototype = shipBrick;
-// playerBrick.prototype.constructor = playerBrick;
-function playerBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id){
-    // this.prototype.constructor.call(this, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
-    shipBrick.call(this, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
-    //Our ID
-    this.id = id;
-    // User input keys
-    this._87= false;
-    this._65= false;
-    this._83= false;
-    this._68= false;
-    this.update = function(){
-        if(this._65)//A
-            this.vr += this.acceleration.rotate*deltaTime;
-        if(this._68)//D
-            this.vr -= this.acceleration.rotate*deltaTime;
-        //TODO This is attracts GC. We don't want any GC. Make it go away.
-        var vector = {x: Math.cos(this.rotation*(Math.PI/180)), y: Math.sin(this.rotation*(Math.PI/180))};
-		if(this._87){//W
-			this.vx += vector.x*this.movAccel*deltaTime;
-			this.vy += vector.y*this.movAccel*deltaTime;
-		}
-		if(this._83){//S
-			this.vx -= vector.x*this.movAccel*deltaTime;
-			this.vy -= vector.y*this.movAccel*deltaTime;
-		}
-    };
+class playerBrick extends shipBrick{
+    constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id){
+        super(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+        //Our ID
+        this.id = id;
+        // User input keys
+        this._87= false;
+        this._65= false;
+        this._83= false;
+        this._68= false;
+        this.update = function(deltaTime){
+            if(this._65)//A
+                this.velocity.r += this.acceleration.rotate*deltaTime;
+            if(this._68)//D
+                this.velocity.r -= this.acceleration.rotate*deltaTime;
+            //TODO This is attracts GC. We don't want any GC. Make it go away.
+            var vector = {x: Math.cos(this.rotation*(Math.PI/180)), y: Math.sin(this.rotation*(Math.PI/180))};
+    		if(this._87){//W
+    			this.velocity.x += vector.x*this.acceleration.move*deltaTime;
+    			this.velocity.y += vector.y*this.acceleration.move*deltaTime;
+    		}
+    		if(this._83){//S
+    			this.velocity.x -= vector.x*this.acceleration.move*deltaTime;
+    			this.velocity.y -= vector.y*this.acceleration.move*deltaTime;
+    		}
+        };
+    }
 }
 
 //A hullBrick is a shipBrick
-// hullBrick.prototype = shipBrick;
-hullBrick.prototype.constructor = shipBrick;
-function hullBrick(){
+class hullBrick extends shipBrick{
     //It's just a generic shipBrick.
 }
 

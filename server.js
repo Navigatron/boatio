@@ -58,7 +58,7 @@ function gameLoop() {
 	deltaTime = now - lastUpdate;
 	deltaTime/=1000;
 	for(var id in players){
-		players[id].update();
+		players[id].update(deltaTime);
 		players[id].step(deltaTime);
 		io.emit('playerpos', id, players[id].position.x, players[id].position.y, players[id].rotation);
 	}
