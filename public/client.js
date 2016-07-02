@@ -4,6 +4,7 @@
 
 // The cause (and solution) of all our problems.
 var socket = io.connect("http://boatio-boatio.rhcloud.com/");
+//var socket = io();
 // Who does the viewport look at?
 var playerToWatch;
 // All the players in game.
@@ -106,11 +107,10 @@ function howManyOnline(){
 	return Object.keys(players).length;
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
 	updateBackground();
 	drawStuff();
-	//run me again in 10ms
-    setTimeout(gameLoop, 10);
+	window.requestAnimationFrame(gameLoop);
 }
 
 function drawStuff() {
@@ -130,7 +130,7 @@ socket.on('wake up', function(id){
 	//prepare the screen, and...
 	resizeCanvas();
 	//START THE CHAOS
-	gameLoop();
+	window.requestAnimationFrame(gameLoop);
 });
 
 socket.on('player disconnected', function(id){
