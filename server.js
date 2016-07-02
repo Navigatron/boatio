@@ -39,7 +39,7 @@ function onNewPlayer(socket){
 	//tell the console
 	console.log(socket.id+' connected');
 	//Server records this player
-	players[socket.id] = new sO.player(socket.id);
+	players[socket.id] = new sO.player(socket.id); //TODO FIXME this is not a function?
 	//Clients record this player
 	io.emit('playerpos', socket.id, players[socket.id].position.x, players[socket.id].position.y, players[socket.id].rotation);
 	//this player records everyone (including themselves)
