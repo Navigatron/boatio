@@ -10,10 +10,11 @@ function gameObject(X, Y, r){
 }
 
 //A rigidBody is a gameObject.
-rigidBody.prototype = gameObject;
-rigidBody.prototype.constructor = rigidBody;
+// rigidBody.prototype = gameObject; //To be removed if the next commit works
+// rigidBody.prototype.constructor = rigidBody;
 function rigidBody(x, y, r, mass, topSpeed, topRotSpeed){
-    rigidBody.prototype.constructor.call(this, x, y, r);
+    // rigidBody.prototype.constructor.call(this, x, y, r); //The old inheritance method
+    gameObject.call(this, x, y, r); //The new inheritance method.
     this.velocity = {
         x: 0,
         y: 0,
@@ -66,20 +67,22 @@ rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity)
 };
 
 //A shipBrick is a rigidBody
-shipBrick.prototype = rigidBody;
-shipBrick.prototype.constructor = shipBrick;
+// shipBrick.prototype = rigidBody;
+// shipBrick.prototype.constructor = shipBrick;
 function shipBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
-    this.prototype.constructor.call(this, x, y, r, mass, topSpeed, topRotSpeed);
+    // this.prototype.constructor.call(this, x, y, r, mass, topSpeed, topRotSpeed);
+    rigidBody.call(this, x, y, r, mass, topSpeed, topRotSpeed);
     this.health = health;
     this.sizex = sizex;
     this.sizey = sizey;
 }
 
 //A playerBrick is a shipBrick
-playerBrick.prototype = shipBrick;
-playerBrick.prototype.constructor = playerBrick;
+// playerBrick.prototype = shipBrick;
+// playerBrick.prototype.constructor = playerBrick;
 function playerBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id){
-    this.prototype.constructor.call(this, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+    // this.prototype.constructor.call(this, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+    shipBrick.call(this, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
     //Our ID
     this.id = id;
     // User input keys
@@ -106,7 +109,7 @@ function playerBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey,
 }
 
 //A hullBrick is a shipBrick
-hullBrick.prototype = shipBrick;
+// hullBrick.prototype = shipBrick;
 hullBrick.prototype.constructor = shipBrick;
 function hullBrick(){
     //It's just a generic shipBrick.
