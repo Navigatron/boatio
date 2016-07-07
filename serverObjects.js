@@ -48,7 +48,7 @@ class playerBrick extends shipBrick{
             if(this._68)//D
                 vr.velocity.r -= vr.acceleration.rotate*deltaTime;
             //TODO This is attracts GC. We don't want any GC. Make it go away.
-            var vector = {x: Math.cos(transform.rotation*(Math.PI/180)), y: Math.sin(transform.rotation*(Math.PI/180))};
+            var vector = {x: Math.cos(this.transform.rotation*(Math.PI/180)), y: Math.sin(this.transform.rotation*(Math.PI/180))};
     		if(this._87){//W
     			vr.velocity.x += vector.x*vr.acceleration.move*deltaTime;
     			vr.velocity.y += vector.y*vr.acceleration.move*deltaTime;
