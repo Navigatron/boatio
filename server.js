@@ -59,8 +59,8 @@ function onNewPlayer(socket){
 	//Clients record this player
 	io.emit('playerpos', id, tr.position.x, tr.position.y, tr.rotation);
 	//this player records everyone (including themselves)
-	for(var id in players){
-		socket.emit('playerpos', id, tr.position.x, tr.position.y, tr.rotation);
+	for(var ido in players){
+		socket.emit('playerpos', ido, things[ido].getComponent('transform').position.x, things[ido].getComponent('transform').position.y, things[ido].getComponent('transform').rotation);
 	}
 	//This is last so they have the players before we ask them to do stuff
 	//let the player know they're online, so they know to start running things.
