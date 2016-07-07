@@ -14,9 +14,6 @@ class gameObject{
              transform: new components.transform(this, X, Y, r)
        };
        this.transform = this.components['transform'];
-       get rigidBody(){
-             return this.components['rigidBody'];
-       }
     }
 }
 gameObject.prototype.getComponent = function(type){
@@ -45,7 +42,7 @@ class playerBrick extends shipBrick{
         this._83= false;
         this._68= false;
         this.update = function(deltaTime){
-            var vr = this.rigidBody;
+            var vr = getComponent('rigidBody');
             if(this._65)//A
                 vr.velocity.r += vr.acceleration.rotate*deltaTime;
             if(this._68)//D
