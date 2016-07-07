@@ -13,6 +13,10 @@ class gameObject{
         this.components = {
              transform: new components.transform(this, X, Y, r)
        };
+       this.transform = this.components['transform'];
+       get rigidBody(){
+             return this.components['rigidBody'];
+       }
     }
 }
 gameObject.prototype.getComponent = function(type){
@@ -41,19 +45,20 @@ class playerBrick extends shipBrick{
         this._83= false;
         this._68= false;
         this.update = function(deltaTime){
+            var vr = this.rigidBody;
             if(this._65)//A
-                this.velocity.r += this.acceleration.rotate*deltaTime;
+                vr.velocity.r += vr.acceleration.rotate*deltaTime;
             if(this._68)//D
-                this.velocity.r -= this.acceleration.rotate*deltaTime;
+                vr.velocity.r -= vr.acceleration.rotate*deltaTime;
             //TODO This is attracts GC. We don't want any GC. Make it go away.
-            var vector = {x: Math.cos(this.rotation*(Math.PI/180)), y: Math.sin(this.rotation*(Math.PI/180))};
+            var vector = {x: Math.cos(transform.rotation*(Math.PI/180)), y: Math.sin(transform.rotation*(Math.PI/180))};
     		if(this._87){//W
-    			this.velocity.x += vector.x*this.acceleration.move*deltaTime;
-    			this.velocity.y += vector.y*this.acceleration.move*deltaTime;
+    			vr.velocity.x += vector.x*vr.acceleration.move*deltaTime;
+    			vr.velocity.y += vector.y*vr.acceleration.move*deltaTime;
     		}
     		if(this._83){//S
-    			this.velocity.x -= vector.x*this.acceleration.move*deltaTime;
-    			this.velocity.y -= vector.y*this.acceleration.move*deltaTime;
+    			vr.velocity.x -= vector.x*vr.acceleration.move*deltaTime;
+    			vr.velocity.y -= vector.y*vr.acceleration.move*deltaTime;
     		}
         };
     }
