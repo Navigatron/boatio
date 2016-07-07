@@ -11,7 +11,7 @@ component.prototype.getComponent = function(type){
 };
 
 class transform extends component{
-      constructor(object, x, y, r){
+      constructor(object, X, Y, r){
             super(object);
             this.position = {
                   x: X,
