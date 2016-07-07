@@ -92,7 +92,7 @@ function gameLoop() {
 	for(var id in things){
 		things[id].update(deltaTime);
 		//things[id].step(deltaTime);
-		io.emit('playerpos', id, things[id].position.x, things[id].position.y, things[id].rotation);
+		io.emit('playerpos', id, things[id].transform.position.x, things[id].transform.position.y, things[id].transform.rotation);
 	}
 	//run me at 120 fps
     setTimeout(gameLoop, 8);
