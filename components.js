@@ -1,9 +1,6 @@
 'use strict';
 
 //components
-
-
-
 class component{
       constructor(object){
             this.object = object;
@@ -100,3 +97,13 @@ class colliderContainer extends collider{
 
       }
 }
+
+module.exports = {
+      component: component,
+      transform: transform,
+      networkView: networkView,
+      rigidBody: rigidBody,
+      collidable: collidable,
+      collider: collider,
+      colliderContainer: colliderContainer
+};
