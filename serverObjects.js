@@ -122,7 +122,6 @@ class hullBrick extends shipBrick{
 }
 
 module.exports = {
-    rigidBody: rigidBody,
     gameObject: gameObject,
     shipBrick: shipBrick,
     playerBrick: playerBrick,
