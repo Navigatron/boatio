@@ -1,5 +1,7 @@
 'use strict';
 
+var components = require('./components.js');
+
 class gameObject{
     constructor(X, Y, r){
         this.position = {
@@ -8,9 +10,16 @@ class gameObject{
         };
         this.rotation = r;
         this.update = function(){return;};
+        this.components = {
+             transform: new components.transform(this, X, Y, r)
+       };
     }
 }
+gameObject.prototype.getComponent = function(type){
+      return this.components[type]?this.components[type]:null;
+};
 
+/*// - To be deleted
 //Alright boys and girls, we're going to go full 2016 on this code right here.
 //Javascript was not intended for this. Don't try this at home.
 class rigidBody extends gameObject{
@@ -64,12 +73,13 @@ rigidBody.prototype.step = function(deltaTime){
 };
 rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity){
     return actualVelocity==0?0:1/maximumVelocity*actualVelocity*actualVelocity;
-};
+};//*/
 
 //A shipBrick is a rigidBody
 class shipBrick extends rigidBody{
     constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
-        super(x, y, r, mass, topSpeed, topRotSpeed);
+        super(x, y, r);//, mass, topSpeed, topRotSpeed);
+        this.components.rigidBody = new components.rigidBody(this, mass, topSpeed, topRotSpeed);//object, mass, topSpeed, topRotSpeed
         this.health = health;
         this.sizex = sizex;
         this.sizey = sizey;

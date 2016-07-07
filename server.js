@@ -13,8 +13,14 @@ var lastUpdate;
 var now = +new Date();
 var deltaTime;
 
-// Dictionary of Players by ID.
+// socket ID --> player Object ID.
 var players = {};
+
+//This holds the universe. player Object ID --> player Object.
+var things = {};
+
+// ID counter for /our/ ID system.
+var _idCounter = 0;
 
 // ~~~~~~~~~~~~~~~ Defenition of objects ~~~~~~~~~~~~~~~
 // TODO - move this to a seperate File - In progress
@@ -25,6 +31,11 @@ var sO = require('./serverObjects.js');
 
 // ~~~~~~~~~~~~~~~ Defenition of functions ~~~~~~~~~~~~~~~
 // TODO - Order by appearance or alphabetical?
+
+function getNewID(){
+	_idCounter++;
+	return _idCounter;
+}
 
 function addForceAtPoint(rigidbody, forceOffsetX, forceOffsetY, forceVectorX,  forceVectorY){
 	// Linear Acceleration is Easy, just add it in there.
@@ -40,27 +51,46 @@ function onNewPlayer(socket){
 	console.log(socket.id+' connected');
 	//Server records this player
 				//x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id
-	players[socket.id] = new sO.playerBrick(0, 0, 90, 1, 10, 270, 20, 1, 1, socket.id);
+	var id = getNewID();
+	things[id] = new sO.playerBrick(0, 0, 90, 1, 10, 270, 20, 1, 1, id);
+	players[socket.id] = id;
 	//Clients record this player
-	io.emit('playerpos', socket.id, players[socket.id].position.x, players[socket.id].position.y, players[socket.id].rotation);
+	io.emit('playerpos', id, things[id].position.x, things[id].position.y, things[id].rotation);
 	//this player records everyone (including themselves)
 	for(var id in players){
-		socket.emit('playerpos', id, players[id].position.x, players[id].position.y, players[id].rotation);
+		socket.emit('playerpos', id, things[id].position.x, things[id].position.y, things[id].rotation);
 	}
 	//This is last so they have the players before we ask them to do stuff
 	//let the player know they're online, so they know to start running things.
-	socket.emit('wake up', socket.id);
+	socket.emit('wake up', id);
 }
 
 function gameLoop() {
+	//Calculate deltaTime
 	lastUpdate = now;
 	now = +new Date();
 	deltaTime = now - lastUpdate;
 	deltaTime/=1000;
-	for(var id in players){
-		players[id].update(deltaTime);
-		players[id].step(deltaTime);
-		io.emit('playerpos', id, players[id].position.x, players[id].position.y, players[id].rotation);
+
+	//Physics step
+	for(var id in things){
+		if(things[id].getComponent('rigidBody')){
+			things[id].getComponent('rigidBody').step(deltaTime);
+		}
+	}
+
+	//Collision Detection
+	//Broad Detection
+	//Narrow Detection
+
+	//Push to players -- we don't do this -- the networkView component does this
+
+	//Object update
+
+	for(var id in things){
+		things[id].update(deltaTime);
+		//things[id].step(deltaTime);
+		io.emit('playerpos', id, things[id].position.x, things[id].position.y, things[id].rotation);
 	}
 	//run me at 120 fps
     setTimeout(gameLoop, 8);
@@ -92,14 +122,15 @@ io.on('connection',function(socket){
 	// When a user disconnects.
 	socket.on('disconnect',function(){
 		console.log(socket.id+' disconnected');
-		io.emit('player disconnected', socket.id);
+		io.emit('player disconnected', players[socket.id]);
+		delete things[players[socket.id]]
 		delete players[socket.id];
 	});
 
 	// When a user presses a relevent key.
 	socket.on('keychange', function(keycode, state){
-		if(players[socket.id]){
-			players[socket.id]['_'+keycode] = state;
+		if(things[players[socket.id]]){
+			things[players[socket.id]]['_'+keycode] = state;
 			//console.log('User '+socket.id+' sets '+keycode+' to '+state);
 		}else{
 			console.log(socket.id + 'Sent keycode before existing');
