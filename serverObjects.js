@@ -42,7 +42,7 @@ class playerBrick extends shipBrick{
         this._83= false;
         this._68= false;
         this.update = function(deltaTime){
-            var vr = getComponent('rigidBody');
+            var vr = this.getComponent('rigidBody');
             if(this._65)//A
                 vr.velocity.r += vr.acceleration.rotate*deltaTime;
             if(this._68)//D
