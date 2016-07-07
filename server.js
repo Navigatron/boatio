@@ -54,11 +54,13 @@ function onNewPlayer(socket){
 	var id = getNewID();
 	things[id] = new sO.playerBrick(0, 0, 90, 1, 10, 270, 20, 1, 1, id);
 	players[socket.id] = id;
+
+	var tr = things[id].getComponent('transform');
 	//Clients record this player
-	io.emit('playerpos', id, things[id].position.x, things[id].position.y, things[id].rotation);
+	io.emit('playerpos', id, tr.position.x, tr.position.y, tr.rotation);
 	//this player records everyone (including themselves)
 	for(var id in players){
-		socket.emit('playerpos', id, things[id].position.x, things[id].position.y, things[id].rotation);
+		socket.emit('playerpos', id, tr.position.x, tr.position.y, tr.rotation);
 	}
 	//This is last so they have the players before we ask them to do stuff
 	//let the player know they're online, so they know to start running things.

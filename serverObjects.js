@@ -19,63 +19,6 @@ gameObject.prototype.getComponent = function(type){
       return this.components[type]?this.components[type]:null;
 };
 
-/*// - To be deleted
-//Alright boys and girls, we're going to go full 2016 on this code right here.
-//Javascript was not intended for this. Don't try this at home.
-class rigidBody extends gameObject{
-    constructor(x, y, r, mass, topSpeed, topRotSpeed){
-        //Classes! Extending! Constructors! Super! Oh snap!
-        super(x, y, r);
-        this.velocity = {
-            x: 0,
-            y: 0,
-            r: 0
-        };
-        this.dampening = {
-            x: 0.9,
-            y: 0.9,
-            r: 0.9
-        };
-        this.acceleration = {
-            move: 10,
-            rotate: 90
-        };
-        this.mass = mass;
-        this.topSpeed = topSpeed;
-        this.momentOfInertia = 1;
-        this.topRotSpeed = topRotSpeed;
-    }
-}
-rigidBody.prototype.addLinearForce = function(x, y){
-    this.velocity.x += x/this.mass;
-    this.velocity.y += y/this.mass;
-};
-rigidBody.prototype.addRotationalForce = function(r){
-    this.rotation += r/this.momentOfInertia;
-};
-rigidBody.prototype.addMass = function(mass, x, y){
-    this.mass += mass;
-};
-rigidBody.prototype.magnitude = function(x, y){
-    return Math.sqrt(x*x+y*y);
-};
-rigidBody.prototype.step = function(deltaTime){
-    //Drag
-    for(var key in this.velocity){
-        var linearDragPerSecond = this.velocity[key] * this.dampening[key];
-        var quadraticDragPerSecond = this.getQuadraticDrag((this.velocity[key]/this.magnitude(this.velocity.x, this.velocity.y)*this.topSpeed),this.velocity[key]);
-        this.velocity[key] -= Math.max(Math.abs(linearDragPerSecond),Math.abs(quadraticDragPerSecond)) * deltaTime * (this.velocity[key]?this.velocity[key]<0?-1:1:0);
-    }
-    //Move
-    this.position.x += this.velocity.x * deltaTime;
-    this.position.y += this.velocity.y * deltaTime;
-    this.rotation += this.velocity.r * deltaTime;
-};
-rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity){
-    return actualVelocity==0?0:1/maximumVelocity*actualVelocity*actualVelocity;
-};//*/
-
-//A shipBrick is a rigidBody
 class shipBrick extends gameObject{
     constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
         super(x, y, r);//, mass, topSpeed, topRotSpeed);
