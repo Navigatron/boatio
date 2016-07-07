@@ -76,7 +76,7 @@ rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity)
 };//*/
 
 //A shipBrick is a rigidBody
-class shipBrick extends rigidBody{
+class shipBrick extends gameObject{
     constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
         super(x, y, r);//, mass, topSpeed, topRotSpeed);
         this.components.rigidBody = new components.rigidBody(this, mass, topSpeed, topRotSpeed);//object, mass, topSpeed, topRotSpeed
