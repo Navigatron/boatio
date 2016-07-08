@@ -21,6 +21,14 @@ var scale = 25;
 var keyState = {};
 //Is everything ready to go?
 var online = false;
+//Images for Drawing
+var images = {
+	square: getElementById('square'),
+	player: getElementById('player'),
+	brick: getElementById('brick'),
+	thruster: getElementById('thruster'),
+	cannon: getElementById('cannon')
+};
 
 // ~~~~~~~~~~~~~~~ Defenition of objects ~~~~~~~~~~~~~~~
 
@@ -53,8 +61,11 @@ player.prototype.draw = function(context, erase){
 		//Extra 1px border cleared to account for anti-aliasing.
 		context.clearRect(-this.boundingX/2-1, -this.boundingY/2-1, this.boundingX+2, this.boundingY+2);
 	}else{
-		context.fillStyle=color;//Color defined by landingjs
-		context.fillRect(-this.boundingX/2, -this.boundingY/2, this.boundingX, this.boundingY);
+		//context.fillStyle=color;//Color defined by landingjs
+		//context.fillRect(-this.boundingX/2, -this.boundingY/2, this.boundingX, this.boundingY);
+		var scaleFactor = scale/16; //images are 16 pixels big
+		context.scale(scaleFactor, scaleFactor);
+		context.drawImage(images['player'], -scaleFactor*8, -scaleFactor*8);
 		this.oldX = point.x;
 		this.oldY = point.y;
 		this.oldR = this.r;
@@ -90,9 +101,7 @@ function resizeCanvas() {
 }
 
 function updateBackground(){
-	//TODO Remove GC bait
-	var img = document.getElementById('square');
-	var pat = bcontext.createPattern(img, "repeat");
+	var pat = bcontext.createPattern(images['square'], "repeat");
 	var point = {x: players[playerToWatch].x*scale, y: players[playerToWatch].y*scale};
 	//TODO 25 is a magic number
 	bcontext.fillStyle = pat;
