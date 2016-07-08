@@ -112,7 +112,8 @@ function updateBackground(){
 	bcontext.fillStyle = pat;
 	//Computer science Modulus is not normal modulus. Take Care.
 	var point = {x: players[playerToWatch].x*scale, y: players[playerToWatch].y*scale};
-	bcontext.translate(-(point.x%s-s*(point.x>0))-s,point.y%s-s*(point.y>0));
+	var a = scale;
+	bcontext.translate(-(point.x%a-a*(point.x>0))-a,point.y%a-a*(point.y>0));//In Pixels!
 	bcontext.scale(scale/s,scale/s);
 	bcontext.fillRect(0,0,window.innerWidth*s/scale+s, window.innerHeight*s/scale+s);
 
