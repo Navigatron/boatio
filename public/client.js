@@ -16,7 +16,7 @@ var context = canvas.getContext('2d');
 var bcanvas = document.getElementById('bcanvas');
 var bcontext = bcanvas.getContext('2d');
 // How many pixels per world unit?
-var scale = 25;
+var scale = 32;
 // Keep track of when a user presses a relevent key.
 var keyState = {};
 //Is everything ready to go?
@@ -53,19 +53,21 @@ player.prototype.updateGraphics = function(context){
 player.prototype.draw = function(context, erase){
 	context.save();
 	//TODO - Remove GC bait
+	// point is in pixels
 	var point = erase ? {x: this.oldX, y: this.oldY} : worldToScreenSpace({x: this.x, y: this.y});
 	var r = erase ? this.oldR : this.r;
-	context.translate(point.x, point.y);
-	context.rotate(-r*(Math.PI/180));//Degrees to Radians!
+	var scaleFactor = scale/16; //images are 16 pixels big
+	context.translate(point.x, point.y);//translation in pixels.
+
+	context.rotate((-r+90)*(Math.PI/180));//Degrees to Radians!
 	if(erase){
-		//Extra 1px border cleared to account for anti-aliasing.
-		context.clearRect(-this.boundingX/2-1, -this.boundingY/2-1, this.boundingX+2, this.boundingY+2);
+		//Extra 1px border cleared to account for anti-aliasing. This is in Pixels!
+		context.clearRect(-this.boundingX*scale/2-1, -this.boundingY*scale/2-1, this.boundingX*scale+2, this.boundingY*scale+2);
 	}else{
 		//context.fillStyle=color;//Color defined by landingjs
 		//context.fillRect(-this.boundingX/2, -this.boundingY/2, this.boundingX, this.boundingY);
-		var scaleFactor = scale/16; //images are 16 pixels big
-		context.scale(scaleFactor, scaleFactor);
-		context.drawImage(images['player'], -scaleFactor*8, -scaleFactor*8);
+		context.scale(scaleFactor, scaleFactor);//Scale it up!
+		context.drawImage(images['player'], -images['player'].width/2, -images['player'].height/2);
 		this.oldX = point.x;
 		this.oldY = point.y;
 		this.oldR = this.r;
@@ -75,7 +77,7 @@ player.prototype.draw = function(context, erase){
 
 // ~~~~~~~~~~~~~~~ Defenition of functions ~~~~~~~~~~~~~~~
 
-function worldToScreenSpace(point){
+function worldToScreenSpace(point){//Takes world units, returns pixels.
 	//object to return
 	var result = {};
 
@@ -84,8 +86,8 @@ function worldToScreenSpace(point){
 	result.y = -(point.y - players[playerToWatch].y)*scale;
 
 	//Shift viewport to center on target player
-	result.x += canvas.width/2;
-	result.y += canvas.height/2;
+	result.x += (canvas.width/2);
+	result.y += (canvas.height/2);
 
 	return result;
 }
@@ -106,9 +108,11 @@ function updateBackground(){
 	//TODO 25 is a magic number
 	bcontext.fillStyle = pat;
 	bcontext.save();
+	var s = images['square'].width;
+	bcontext.scale(scale/s,scale/s);
 	//Computer science Modulus is not normal modulus. Take Care.
-	bcontext.translate(-(point.x%25-25*(point.x>0))-25,point.y%25-25*(point.y>0));
-	bcontext.fillRect(0,0,window.innerWidth+25, window.innerHeight+25);
+	bcontext.translate(-(point.x%s-s*(point.x>0))-s,point.y%s-s*(point.y>0));
+	bcontext.fillRect(0,0,window.innerWidth*s/scale+s, window.innerHeight*s/scale+s);
 	bcontext.restore();
 }
 
@@ -155,7 +159,7 @@ socket.on('playerpos', function(id, x, y, r){
 		players[id].r = r;
 	}else{
 		//We're using Standard Angles, not Bearings. Unrotated, things face right.
-		players[id] = new player(x, y, r, 40,20);
+		players[id] = new player(x, y, r, 1,1);//Bounding Size - 1 world unit
 		console.log(id+' connected, '+howManyOnline()+' online.');
 	}
 });
