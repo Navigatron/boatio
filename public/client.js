@@ -103,16 +103,19 @@ function resizeCanvas() {
 }
 
 function updateBackground(){
-	var pat = bcontext.createPattern(images['square'], "repeat");
-	var point = {x: players[playerToWatch].x*scale, y: players[playerToWatch].y*scale};
-	//TODO 25 is a magic number
-	bcontext.fillStyle = pat;
 	bcontext.save();
+
 	var s = images['square'].width;
 	bcontext.scale(scale/s,scale/s);
+
+	var pat = bcontext.createPattern(images['square'], "repeat");
+	bcontext.fillStyle = pat;
 	//Computer science Modulus is not normal modulus. Take Care.
+	var point = {x: players[playerToWatch].x*scale, y: players[playerToWatch].y*scale};
 	bcontext.translate(-(point.x%s-s*(point.x>0))-s,point.y%s-s*(point.y>0));
+
 	bcontext.fillRect(0,0,window.innerWidth*s/scale+s, window.innerHeight*s/scale+s);
+	
 	bcontext.restore();
 }
 
