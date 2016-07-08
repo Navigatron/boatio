@@ -23,11 +23,11 @@ var keyState = {};
 var online = false;
 //Images for Drawing
 var images = {
-	square: getElementById('square'),
-	player: getElementById('player'),
-	brick: getElementById('brick'),
-	thruster: getElementById('thruster'),
-	cannon: getElementById('cannon')
+	square: document.getElementById('square'),
+	player: document.getElementById('player'),
+	brick: document.getElementById('brick'),
+	thruster: document.getElementById('thruster'),
+	cannon: document.getElementById('cannon')
 };
 
 // ~~~~~~~~~~~~~~~ Defenition of objects ~~~~~~~~~~~~~~~
