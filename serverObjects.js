@@ -83,7 +83,7 @@ class player extends gameObject{
     		}
             //Put the Ducks in the Boxes.
             for(x in ducklings){
-                for(y in duckings[x]){
+                for(y in ducklings[x]){
                     var tr = ducklings[x][y].transform;
                     tr.rotation = this.r;
                     tr.position.x = Math.cos(this.r*(Math.PI/180))*x;
