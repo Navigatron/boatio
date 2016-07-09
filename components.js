@@ -93,7 +93,5 @@ module.exports = {
       transform: transform,
       networkView: networkView,
       rigidBody: rigidBody,
-      collidable: collidable,
-      collider: collider,
-      colliderContainer: colliderContainer
+      collider: collider
 };
