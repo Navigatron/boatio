@@ -81,10 +81,10 @@ rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity)
 };
 
 class collider extends component{
-      constructor(){
+      constructor(object){
+          super(object);
 //Does this have children?
 //List of child objects
-//
       }
 }
 

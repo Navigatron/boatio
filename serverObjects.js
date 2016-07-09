@@ -59,7 +59,7 @@ class player extends gameObject{
         //Rigidbody
         this.components.rigidBody = new components.rigidBody(this, mass, topSpeed, topRotSpeed);//object, mass, topSpeed, topRotSpeed
         //collider
-        this.components.collider = new components.collider();
+        this.components.collider = new components.collider(this);
         //We are the mamma duck. These the are wee lil duckies.
         var ducklings = {};
         ducklings[0][0] = new playerBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id+'sub');
