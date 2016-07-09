@@ -80,21 +80,11 @@ rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity)
     return actualVelocity==0?0:1/maximumVelocity*actualVelocity*actualVelocity;
 };
 
-//Collidable - collider - colliderContainer
-
-class collidable extends component{
+class collider extends component{
       constructor(){
-
-      }
-}
-class collider extends collidable{
-      constructor(){
-
-      }
-}
-class colliderContainer extends collider{
-      constructor(){
-
+//Does this have children?
+//List of child objects
+//
       }
 }
 

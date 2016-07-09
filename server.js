@@ -52,7 +52,7 @@ function onNewPlayer(socket){
 	//Server records this player
 				//x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id
 	var id = getNewID();
-	things[id] = new sO.playerBrick(0, 0, 90, 1, 10, 270, 20, 1, 1, id);
+	things[id] = new sO.player(0, 0, 90, 1, 10, 270, 20, 1, 1, id);
 	players[socket.id] = id;
 
 	var tr = things[id].getComponent('transform');
@@ -84,6 +84,15 @@ function gameLoop() {
 	//Collision Detection
 	//Broad Detection
 	//Narrow Detection
+
+	//So ... How do we do this?
+	for(var id in things){
+		for(var ido in things){
+			if(id != ido && things[id].getComponent('rigidBody')){
+				things[id].getComponent('rigidBody').step(deltaTime);
+			}
+		}
+	}
 
 	//Push to players -- we don't do this -- the networkView component does this
 
