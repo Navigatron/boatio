@@ -62,6 +62,7 @@ class player extends gameObject{
         this.components.collider = new components.collider(this);
         //We are the mamma duck. These the are wee lil duckies.
         var ducklings = {};
+        ducklings[0] = {};
         ducklings[0][0] = new playerBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id+'sub');
         this.update = function(deltaTime){
             //Handle Player Input
