@@ -26,6 +26,15 @@ class networkView extends component{
 
       }
 }
+networkView.prototype.push = function(io){
+    var data = {
+        x: this.object.transform.position.x,
+        y: this.object.transform.position.y,
+        r: this.object.transform.rotation
+        //How do we incorperate rigidbody data?
+    };
+    io.emit('objectData', id, data);
+};
 
 class rigidBody extends component{
     constructor(object, mass, topSpeed, topRotSpeed){

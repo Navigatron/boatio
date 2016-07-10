@@ -26,7 +26,7 @@ var _idCounter = 0;
 // TODO - move this to a seperate File - In progress
 
 var sO = require('./serverObjects.js');
-
+var getNewID = require('./util.js');
 
 
 // ~~~~~~~~~~~~~~~ Defenition of functions ~~~~~~~~~~~~~~~
@@ -50,18 +50,21 @@ function onNewPlayer(socket){
 	//tell the console
 	console.log(socket.id+' connected');
 	//Server records this player
-				//x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id
+				//id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey
 	var id = getNewID();
-	things[id] = new sO.player(0, 0, 90, 1, 10, 270, 20, 1, 1, id);
+	things[id] = new sO.player(id, 0, 0, 90, 1, 10, 270, 20, 1, 1);
 	players[socket.id] = id;
 
-	var tr = things[id].getComponent('transform');
+	var tr = things[id].transform;
+	//TODO - do we really need this? Can't we all get our data from the standard data loop?
+	//Lets see if it works
+	/*
 	//Clients record this player
 	io.emit('playerpos', id, tr.position.x, tr.position.y, tr.rotation);
 	//this player records everyone (including themselves)
 	for(var ido in things){
-		socket.emit('playerpos', ido, things[ido].getComponent('transform').position.x, things[ido].getComponent('transform').position.y, things[ido].getComponent('transform').rotation);
-	}
+		socket.emit('playerpos', ido, things[ido].transform.position.x, things[ido].transform.position.y, things[ido].transform.rotation);
+	}//*/
 	//This is last so they have the players before we ask them to do stuff
 	//let the player know they're online, so they know to start running things.
 	socket.emit('wake up', id);
@@ -84,24 +87,26 @@ function gameLoop() {
 	//Collision Detection
 	//Broad Detection
 	//Narrow Detection
-
 	//So ... How do we do this?
+	/*
 	for(var id in things){
 		for(var ido in things){
-			if(id != ido && things[id].getComponent('rigidBody')){
-				things[id].getComponent('rigidBody').step(deltaTime);
-			}
+			//Detect Collisions somehow...?
+		}
+	}//*/
+
+	//Push to players -- we don't do this -- the networkView component does this
+	for(var id in things){
+		if(things[id].getComponent('networkView')){
+			things[id].getComponent('networkView').push(io);
 		}
 	}
 
-	//Push to players -- we don't do this -- the networkView component does this
-
 	//Object update
-
 	for(var id in things){
 		things[id].update(deltaTime);
-		//things[id].step(deltaTime);
-		io.emit('playerpos', id, things[id].transform.position.x, things[id].transform.position.y, things[id].transform.rotation);
+		//TODO get rid of this
+		//io.emit('playerpos', id, things[id].transform.position.x, things[id].transform.position.y, things[id].transform.rotation);
 	}
 	//run me at 120 fps
     setTimeout(gameLoop, 8);

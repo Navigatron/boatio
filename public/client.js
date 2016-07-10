@@ -168,6 +168,18 @@ socket.on('playerpos', function(id, x, y, r){
 	}
 });
 
+socket.on('objectData', function(id, data){
+	if(players[id]){
+		players[id].x = data.x;
+		players[id].y = data.y;
+		players[id].r = data.r;
+	}else{
+		//We're using Standard Angles, not Bearings. Unrotated, things face right.
+		players[id] = new player(data.x, data.y, data.r, 1,1);//Bounding Size - 1 world unit
+		console.log(id+' connected, '+howManyOnline()+' online.');
+	}
+});
+
 //Position the canvases in the propper order.
 canvas.style['z-index'] = '1';
 bcanvas.style['z-index'] = '0';

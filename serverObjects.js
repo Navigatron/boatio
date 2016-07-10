@@ -1,9 +1,12 @@
 'use strict';
 
 var components = require('./components.js');
+//We can do this - node will return the same util object.
+var getNewID = require('./util');
 
 class gameObject{
-    constructor(X, Y, r){
+    constructor(id, X, Y, r){
+        this.id = id;
         this.position = {
             x: X,
             y: Y
@@ -21,8 +24,8 @@ gameObject.prototype.getComponent = function(type){
 };
 
 class shipBrick extends gameObject{
-    constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
-        super(x, y, r);//, mass, topSpeed, topRotSpeed);
+    constructor(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
+        super(id, x, y, r);//, mass, topSpeed, topRotSpeed);
         //this.components.rigidBody = new components.rigidBody(this, mass, topSpeed, topRotSpeed);//object, mass, topSpeed, topRotSpeed
         this.health = health;
         this.sizex = sizex;
@@ -32,25 +35,28 @@ class shipBrick extends gameObject{
 
 //A playerBrick is a shipBrick
 class playerBrick extends shipBrick{
-    constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id){
-        super(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
-        //Our ID
-        this.id = id;
+    constructor(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
+        super(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
     }
 }
 
 //A hullBrick is a shipBrick
-class hullBrick extends shipBrick{
+class hull extends shipBrick{
     //It's just a generic shipBrick.
+}
+
+//A thruster is a shipBrick
+class thruster extends shipBrick{
+    constructor(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
+        super(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+    }
 }
 
 // Degrees to Radians! *(Math.PI/180)
 
 class player extends gameObject{
-    constructor(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id){
-        super(x, y, r);
-        //Our ID
-        this.id = id;
+    constructor(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
+        super(id, x, y, r);
         // User input keys
         this._87= false;
         this._65= false;
@@ -63,7 +69,8 @@ class player extends gameObject{
         //We are the mamma duck. These the are wee lil duckies.
         var ducklings = {};
         ducklings[0] = {};
-        ducklings[0][0] = new playerBrick(x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey, id+'sub');
+        ducklings[0][0] = new playerBrick(getNewID(), x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+        ducklings[0][-1] = new thruster(getNewID(), x, y-1, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
         this.update = function(deltaTime){
             //Handle Player Input
             var vr = this.getComponent('rigidBody');
@@ -98,6 +105,7 @@ module.exports = {
     gameObject: gameObject,
     shipBrick: shipBrick,
     playerBrick: playerBrick,
-    hullBrick: hullBrick,
+    hull: hull,
+    thruster: thruster,
     player: player
 };
