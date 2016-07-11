@@ -37,6 +37,7 @@ class shipBrick extends gameObject{
 class playerBrick extends shipBrick{
     constructor(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
         super(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+        this.components.networkView = new components.networkView(this);
     }
 }
 
@@ -49,6 +50,7 @@ class hull extends shipBrick{
 class thruster extends shipBrick{
     constructor(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey){
         super(id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+        this.components.networkView = new components.networkView(this);
     }
 }
 
@@ -66,11 +68,13 @@ class player extends gameObject{
         this.components.rigidBody = new components.rigidBody(this, mass, topSpeed, topRotSpeed);//object, mass, topSpeed, topRotSpeed
         //collider
         this.components.collider = new components.collider(this);
+        //networkView - So the client actually gets the data - TODO - player can distinguish types
+        this.components.networkView = new components.networkView(this);
         //We are the mamma duck. These the are wee lil duckies.
-        var ducklings = {};
-        ducklings[0] = {};
-        ducklings[0][0] = new playerBrick(getNewID(), x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
-        ducklings[0][-1] = new thruster(getNewID(), x, y-1, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+        this.ducklings = {};
+        this.ducklings[0] = {};
+        //this.ducklings[0][0] = new playerBrick(getNewID(), x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+        //this.ducklings[0][-1] = new thruster(getNewID(), x, y-1, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
         this.update = function(deltaTime){
             //Handle Player Input
             var vr = this.getComponent('rigidBody');
@@ -89,17 +93,23 @@ class player extends gameObject{
     			vr.velocity.y -= vector.y*vr.acceleration.move*deltaTime;
     		}
             //Put the Ducks in the Boxes.
-            for(x in ducklings){
-                for(y in ducklings[x]){
-                    var tr = ducklings[x][y].transform;
-                    tr.rotation = this.r;
-                    tr.position.x = Math.cos(this.r*(Math.PI/180))*x;
-                    tr.position.y = Math.sin(this.r*(Math.PI/180))*y;
+            for(x in this.ducklings){
+                for(y in this.ducklings[x]){
+                    var tr = this.ducklings[x][y].transform;
+                    tr.rotation = this.transform.rotation;
+                    //TODO what the fuck is going on.
+                    tr.position.x = Math.cos(this.transform.rotation*(Math.PI/180))*(Number(x)==0?Number(y):Number(y))+this.transform.position.x;
+                    tr.position.y = Math.sin(this.transform.rotation*(Math.PI/180))*(Number(y)==0?Number(x):Number(x))+this.transform.position.y;
                 }
             }
         };
     }
 }
+player.prototype.attach = function(duckling, x, y){
+    if(!this.ducklings[x])
+        this.ducklings[x] = {};
+    this.ducklings[x][y] = duckling;
+};
 
 module.exports = {
     gameObject: gameObject,

@@ -98,6 +98,7 @@ function resizeCanvas() {
 		bcanvas.width = window.innerWidth;
         bcanvas.height = window.innerHeight;
 		console.log('Resize');
+		if(online)
 		updateBackground();
         drawStuff();
 }
@@ -140,13 +141,11 @@ function drawStuff() {
 
 socket.on('wake up', function(id){
 	console.log('we are online, our id is '+id);
-	//ladies and gentlemen WE. ARE. ONLINE. WOOOOOO
-	online = true;
-	//also, take note of our new ID. don't wanna loose that.
 	playerToWatch = id;
-	//prepare the screen, and...
+	players[id] = new player(0,0,0,1,1);
+	online = true;
+	//TODO - we're using this for coanvas Initialization. we shouldn't.
 	resizeCanvas();
-	//START THE CHAOS
 	window.requestAnimationFrame(gameLoop);
 });
 

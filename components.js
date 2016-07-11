@@ -22,8 +22,8 @@ class transform extends component{
 }
 
 class networkView extends component{
-      constructor(){
-
+      constructor(object){
+          super(object);
       }
 }
 networkView.prototype.push = function(io){
@@ -33,7 +33,7 @@ networkView.prototype.push = function(io){
         r: this.object.transform.rotation
         //How do we incorperate rigidbody data?
     };
-    io.emit('objectData', id, data);
+    io.emit('objectData', this.object.id, data);
 };
 
 class rigidBody extends component{

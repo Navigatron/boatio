@@ -47,26 +47,24 @@ function addForceAtPoint(rigidbody, forceOffsetX, forceOffsetY, forceVectorX,  f
 }
 
 function onNewPlayer(socket){
-	//tell the console
 	console.log(socket.id+' connected');
-	//Server records this player
 				//id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey
 	var id = getNewID();
 	things[id] = new sO.player(id, 0, 0, 90, 1, 10, 270, 20, 1, 1);
+	// some fun - give it a thruster TODO - too many arguments for constructors.
+								//id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey
+	var ido = getNewID();
+	things[ido] = new sO.thruster(ido,0,0,0,1,10,270,1,1,1);
+	things[id].attach(things[ido],0,-1);
+	//*
+	ido = getNewID();
+	things[ido] = new sO.thruster(ido,0,0,0,1,10,270,1,1,1);
+	things[id].attach(things[ido],0,-2);
+	ido = getNewID();
+	things[ido] = new sO.thruster(ido,0,0,0,1,10,270,1,1,1);
+	things[id].attach(things[ido],1,0);//*/
 	players[socket.id] = id;
-
 	var tr = things[id].transform;
-	//TODO - do we really need this? Can't we all get our data from the standard data loop?
-	//Lets see if it works
-	/*
-	//Clients record this player
-	io.emit('playerpos', id, tr.position.x, tr.position.y, tr.rotation);
-	//this player records everyone (including themselves)
-	for(var ido in things){
-		socket.emit('playerpos', ido, things[ido].transform.position.x, things[ido].transform.position.y, things[ido].transform.rotation);
-	}//*/
-	//This is last so they have the players before we ask them to do stuff
-	//let the player know they're online, so they know to start running things.
 	socket.emit('wake up', id);
 }
 
