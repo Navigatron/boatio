@@ -2,37 +2,11 @@
 
 // ~~~~~~~~~~~~~~~ Declaration of Variables ~~~~~~~~~~~~~~~
 
-// The cause (and solution) of all our problems.
-var socket = io.connect("http://boatio-boatio.rhcloud.com/");
-//var socket = io();
-// Who does the viewport look at?
-var playerToWatch;
-// All the players in game.
-var players = {};
-// The game canvas
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext('2d');
-// The Background canvas
-var bcanvas = document.getElementById('bcanvas');
-var bcontext = bcanvas.getContext('2d');
-// How many pixels per world unit?
-var scale = 32;
-// Keep track of when a user presses a relevent key.
-var keyState = {};
-//Is everything ready to go?
-var online = false;
-//Images for Drawing
-var images = {
-	square: document.getElementById('square'),
-	player: document.getElementById('player'),
-	brick: document.getElementById('brick'),
-	thruster: document.getElementById('thruster'),
-	cannon: document.getElementById('cannon')
-};
+
 
 // ~~~~~~~~~~~~~~~ Defenition of objects ~~~~~~~~~~~~~~~
 
-function player(x, y, r, sizex, sizey){
+/*function player(x, y, r, sizex, sizey){
 	this.x= x;
 	this.y= y;
 	this.oldX= x;
@@ -58,8 +32,8 @@ player.prototype.draw = function(context, erase){
 	var r = erase ? this.oldR : this.r;
 	var scaleFactor = scale/16; //images are 16 pixels big
 	context.translate(point.x, point.y);//translation in pixels.
-
-	context.rotate((-r+90)*(Math.PI/180));//Degrees to Radians!
+	//90-r aligns canvas up to server up - server up is 0 degrees from standard angle, aka right.
+	context.rotate((90-r)*(Math.PI/180));//Degrees to Radians!
 	if(erase){
 		//Extra 1px border cleared to account for anti-aliasing. This is in Pixels!
 		context.clearRect(-this.boundingX*scale/2-1, -this.boundingY*scale/2-1, this.boundingX*scale+2, this.boundingY*scale+2);
@@ -73,69 +47,7 @@ player.prototype.draw = function(context, erase){
 		this.oldR = this.r;
 	}
 	context.restore();
-};
-
-// ~~~~~~~~~~~~~~~ Defenition of functions ~~~~~~~~~~~~~~~
-
-function worldToScreenSpace(point){//Takes world units, returns pixels.
-	//object to return
-	var result = {};
-
-	//Where is the target relative to the target player
-	result.x = (point.x - players[playerToWatch].x)*scale;
-	result.y = -(point.y - players[playerToWatch].y)*scale;
-
-	//Shift viewport to center on target player
-	result.x += (canvas.width/2);
-	result.y += (canvas.height/2);
-
-	return result;
-}
-
-function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-		bcanvas.width = window.innerWidth;
-        bcanvas.height = window.innerHeight;
-		console.log('Resize');
-		if(online)
-		updateBackground();
-        drawStuff();
-}
-
-function updateBackground(){
-	bcontext.save();
-
-	var s = images['square'].width;
-
-
-	var pat = bcontext.createPattern(images['square'], "repeat");
-	bcontext.fillStyle = pat;
-	//Computer science Modulus is not normal modulus. Take Care.
-	var point = {x: players[playerToWatch].x*scale, y: players[playerToWatch].y*scale};
-	var a = scale;
-	bcontext.translate(-(point.x%a-a*(point.x>0))-a,point.y%a-a*(point.y>0));//In Pixels!
-	bcontext.scale(scale/s,scale/s);
-	bcontext.fillRect(0,0,window.innerWidth*s/scale+s, window.innerHeight*s/scale+s);
-
-	bcontext.restore();
-}
-
-function howManyOnline(){
-	return Object.keys(players).length;
-}
-
-function gameLoop(timestamp) {
-	updateBackground();
-	drawStuff();
-	window.requestAnimationFrame(gameLoop);
-}
-
-function drawStuff() {
-	for(var id in players){
-		players[id].updateGraphics(context);
-	}
-}
+};//*/
 
 // ~~~~~~~~~~~~~~~ Initialization and Start ~~~~~~~~~~~~~~~
 
@@ -155,16 +67,8 @@ socket.on('player disconnected', function(id){
 	console.log(id+' disconnected, '+howManyOnline()+' online.');
 });
 
-socket.on('playerpos', function(id, x, y, r){
-	if(players[id]){
-		players[id].x = x;
-		players[id].y = y;
-		players[id].r = r;
-	}else{
-		//We're using Standard Angles, not Bearings. Unrotated, things face right.
-		players[id] = new player(x, y, r, 1,1);//Bounding Size - 1 world unit
-		console.log(id+' connected, '+howManyOnline()+' online.');
-	}
+socket.on('TheresAThing', function(data){
+	console.log('There\'s a thing! id:'+data.id+', type:'+data.type);
 });
 
 socket.on('objectData', function(id, data){
@@ -173,7 +77,6 @@ socket.on('objectData', function(id, data){
 		players[id].y = data.y;
 		players[id].r = data.r;
 	}else{
-		//We're using Standard Angles, not Bearings. Unrotated, things face right.
 		players[id] = new player(data.x, data.y, data.r, 1,1);//Bounding Size - 1 world unit
 		console.log(id+' connected, '+howManyOnline()+' online.');
 	}

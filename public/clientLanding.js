@@ -15,7 +15,8 @@ function onNameChosen(){
 	}
 	console.log("'"+name+"' selected as name");
 	document.getElementById("namediv").style.display = "none";
-	document.getElementById("questdiv").style.display = "block";
+	//document.getElementById("questdiv").style.display = "block";
+	//Screw quest and color, just go right for the game.
 	return false;
 }
 function askForANewName(field){
@@ -40,7 +41,6 @@ function onQuestChosen(q){
 }
 
 //set player favorite color
-
 function onColorChosen(q){
 	color = q;
 	console.log("'"+q+"' selected as color");
@@ -54,7 +54,23 @@ function onColorChosen(q){
 //Load the game scripts
 //<script type="text/javascript" src="/client.js"></script>
 function getGoin(){
-    var newScript = document.createElement('script');
+	//First, Globals.
+	var newScript = document.createElement('script');
+    newScript.type = 'text/javascript';
+    newScript.src = './clientGlobals.js';
+    document.getElementsByTagName('head')[0].appendChild(newScript);
+	//Then Components
+	newScript = document.createElement('script');
+    newScript.type = 'text/javascript';
+    newScript.src = './clientComponents.js';
+    document.getElementsByTagName('head')[0].appendChild(newScript);
+	//Then Objects
+	newScript = document.createElement('script');
+    newScript.type = 'text/javascript';
+    newScript.src = './clientObjects.js';
+    document.getElementsByTagName('head')[0].appendChild(newScript);
+	//Then the guy who runs this mess.
+    newScript = document.createElement('script');
     newScript.type = 'text/javascript';
     newScript.src = './client.js';
     document.getElementsByTagName('head')[0].appendChild(newScript);

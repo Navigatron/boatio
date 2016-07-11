@@ -27,13 +27,6 @@ class networkView extends component{
       }
 }
 networkView.prototype.push = function(io){
-    var data = {
-        x: this.object.transform.position.x,
-        y: this.object.transform.position.y,
-        r: this.object.transform.rotation
-        //How do we incorperate rigidbody data? TODO
-    };
-    io.emit('objectData', this.object.id, data);
 };
 
 class rigidBody extends component{
@@ -96,11 +89,3 @@ class collider extends component{
 //List of child objects
       }
 }
-
-module.exports = {
-      component: component,
-      transform: transform,
-      networkView: networkView,
-      rigidBody: rigidBody,
-      collider: collider
-};

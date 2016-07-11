@@ -50,22 +50,36 @@ function onNewPlayer(socket){
 	console.log(socket.id+' connected');
 				//id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey
 	var id = getNewID();
-	things[id] = new sO.player(id, 0, 0, 90, 1, 10, 270, 20, 1, 1);
+	//Instantiate at 90 degrees from standard angle - pointing up.
+	things[id] = new sO.player(id, 0, 0, 90);//id, x, y, r
 	// some fun - give it a thruster TODO - too many arguments for constructors.
 								//id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey
 	var ido = getNewID();
-	things[ido] = new sO.thruster(ido,0,0,0,1,10,270,1,1,1);
+	things[ido] = new sO.thruster(ido,0,0,0);
 	things[id].attach(things[ido],0,-1);
 	//*
 	ido = getNewID();
-	things[ido] = new sO.thruster(ido,0,0,0,1,10,270,1,1,1);
+	things[ido] = new sO.thruster(ido,0,0,0);
 	things[id].attach(things[ido],0,-2);
 	ido = getNewID();
-	things[ido] = new sO.thruster(ido,0,0,0,1,10,270,1,1,1);
+	things[ido] = new sO.thruster(ido,0,0,0);
 	things[id].attach(things[ido],1,0);//*/
+	//Tell this new player about all the things
+
 	players[socket.id] = id;
 	var tr = things[id].transform;
 	socket.emit('wake up', id);
+}
+
+function addNew(thing){
+	var id = getNewID();
+	things[id] = thing;
+	thing.id = id;
+	io.emit('TheresAThing', {
+		id: thing.id,
+		type: thing.type
+	});
+	return id;
 }
 
 function gameLoop() {
@@ -74,37 +88,24 @@ function gameLoop() {
 	now = +new Date();
 	deltaTime = now - lastUpdate;
 	deltaTime/=1000;
-
 	//Physics step
 	for(var id in things){
 		if(things[id].getComponent('rigidBody')){
 			things[id].getComponent('rigidBody').step(deltaTime);
 		}
 	}
-
 	//Collision Detection
-	//Broad Detection
-	//Narrow Detection
-	//So ... How do we do this?
-	/*
-	for(var id in things){
-		for(var ido in things){
-			//Detect Collisions somehow...?
-		}
-	}//*/
-
-	//Push to players -- we don't do this -- the networkView component does this
-	for(var id in things){
-		if(things[id].getComponent('networkView')){
-			things[id].getComponent('networkView').push(io);
-		}
-	}
-
 	//Object update
 	for(var id in things){
 		things[id].update(deltaTime);
 		//TODO get rid of this
 		//io.emit('playerpos', id, things[id].transform.position.x, things[id].transform.position.y, things[id].transform.rotation);
+	}
+	//Everything is calculated, push current data to players.
+	for(var id in things){
+		if(things[id].getComponent('networkView')){
+			things[id].getComponent('networkView').push(io);
+		}
 	}
 	//run me at 120 fps
     setTimeout(gameLoop, 8);
