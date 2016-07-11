@@ -98,8 +98,9 @@ class player extends gameObject{
                     var tr = this.ducklings[x][y].transform;
                     tr.rotation = this.transform.rotation;
                     //TODO what the fuck is going on.
-                    tr.position.x = Math.cos(this.transform.rotation*(Math.PI/180))*(Number(x)==0?Number(y):Number(y))+this.transform.position.x;
-                    tr.position.y = Math.sin(this.transform.rotation*(Math.PI/180))*(Number(y)==0?Number(x):Number(x))+this.transform.position.y;
+                    var theta = this.transform.rotation*(Math.PI/180);
+                    tr.position.x = Number(x)*Math.cos(theta)-Number(y)*Math.sin(theta)+this.transform.position.x;
+                    tr.position.y = Number(y)*Math.cos(theta)+Number(x)*Math.sin(theta)+this.transform.position.y;
                 }
             }
         };
