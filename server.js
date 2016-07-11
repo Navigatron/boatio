@@ -22,9 +22,6 @@ var things = {};
 // ID counter for /our/ ID system.
 var _idCounter = 0;
 
-// ~~~~~~~~~~~~~~~ Defenition of objects ~~~~~~~~~~~~~~~
-// TODO - move this to a seperate File - In progress
-
 var sO = require('./serverObjects.js');
 var getNewID = require('./util.js');
 
@@ -48,23 +45,28 @@ function addForceAtPoint(rigidbody, forceOffsetX, forceOffsetY, forceVectorX,  f
 
 function onNewPlayer(socket){
 	console.log(socket.id+' connected');
-				//id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey
-	var id = getNewID();
-	//Instantiate at 90 degrees from standard angle - pointing up.
-	things[id] = new sO.player(id, 0, 0, 90);//id, x, y, r
-	// some fun - give it a thruster TODO - too many arguments for constructors.
-								//id, x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey
-	var ido = getNewID();
-	things[ido] = new sO.thruster(ido,0,0,0);
-	things[id].attach(things[ido],0,-1);
-	//*
-	ido = getNewID();
-	things[ido] = new sO.thruster(ido,0,0,0);
-	things[id].attach(things[ido],0,-2);
-	ido = getNewID();
-	things[ido] = new sO.thruster(ido,0,0,0);
-	things[id].attach(things[ido],1,0);//*/
-	//Tell this new player about all the things
+	//Inform the newbie of everything else. Position data will come shortly.
+	for(var key in things){
+			socket.emit('TheresAThing', {
+				id: things[key].id,
+				type: things[key].type
+			});
+	}
+	//id, x, y, r
+	var id = addNew(new sO.player(0, 0, 0, 90));
+	// Add the starter player bricks
+	/*
+	   /i\
+	|=||@||=|
+	/-\   /-\
+
+	*/
+	things[id].attach(things[addNew(new sO.cannon(0,0,0,0))],	   0, 1);
+	things[id].attach(things[addNew(new sO.hull(0,0,0,0))],		  -1, 0);
+	things[id].attach(things[addNew(new sO.playerBrick(0,0,0,0))], 0, 0);
+	things[id].attach(things[addNew(new sO.hull(0,0,0,0))],		   1, 0);
+	things[id].attach(things[addNew(new sO.thruster(0,0,0,0))],   -1,-1);
+	things[id].attach(things[addNew(new sO.thruster(0,0,0,0))],    1,-1);
 
 	players[socket.id] = id;
 	var tr = things[id].transform;
@@ -98,8 +100,6 @@ function gameLoop() {
 	//Object update
 	for(var id in things){
 		things[id].update(deltaTime);
-		//TODO get rid of this
-		//io.emit('playerpos', id, things[id].transform.position.x, things[id].transform.position.y, things[id].transform.rotation);
 	}
 	//Everything is calculated, push current data to players.
 	for(var id in things){

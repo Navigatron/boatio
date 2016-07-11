@@ -11,14 +11,18 @@
 // ~~~~~~~~~~~~~~~ Declaration of Variables ~~~~~~~~~~~~~~~
 
 // The cause (and solution) of all our problems.
-//var socket = io.connect("http://boatio-boatio.rhcloud.com/");
-var socket = io();
+var socket = io.connect("http://boatio-boatio.rhcloud.com/");
+//var socket = io();
 // Who does the viewport look at?
 var playerToWatch;
 // All the players in game.
 var players = {};
 // All the things
 var things = {};
+// id -> type map.
+var typeOf = {};
+// type ->  object Class map.
+var objects = {};
 // The game canvas
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
@@ -34,8 +38,8 @@ var online = false;
 //Images for Drawing
 var images = {
 	square: document.getElementById('square'),
-	player: document.getElementById('player'),
-	brick: document.getElementById('brick'),
+	playerBrick: document.getElementById('player'),
+	hull: document.getElementById('brick'),
 	thruster: document.getElementById('thruster'),
 	cannon: document.getElementById('cannon'),
 	thrust: document.getElementById('thrust')
@@ -43,13 +47,14 @@ var images = {
 
 // ~~~~~~~~~~~~~~~ Declaration of Functions ~~~~~~~~~~~~~~~
 
+//Now this uses components, which haven't been declared yet, but pray the hoisting works...
 function worldToScreenSpace(point){//Takes world units, returns pixels.
 	//object to return
 	var result = {};
 
 	//Where is the target relative to the target player
-	result.x = (point.x - players[playerToWatch].x)*scale;
-	result.y = -(point.y - players[playerToWatch].y)*scale;
+	result.x = (point.x - things[playerToWatch].transform.position.x)*scale;
+	result.y = -(point.y - things[playerToWatch].transform.position.y)*scale;
 
 	//Shift viewport to center on target player
 	result.x += (canvas.width/2);
@@ -77,16 +82,12 @@ function updateBackground(){
 	var pat = bcontext.createPattern(images['square'], "repeat");
 	bcontext.fillStyle = pat;
 	//Computer science Modulus is not normal modulus. Take Care.
-	var point = {x: players[playerToWatch].x*scale, y: players[playerToWatch].y*scale};
+	var point = {x: things[playerToWatch].transform.position.x*scale, y: things[playerToWatch].transform.position.y*scale};
 	var a = scale;
 	bcontext.translate(-(point.x%a-a*(point.x>0))-a,point.y%a-a*(point.y>0));//In Pixels!
 	bcontext.scale(scale/s,scale/s);
 	bcontext.fillRect(0,0,window.innerWidth*s/scale+s, window.innerHeight*s/scale+s);
 	bcontext.restore();
-}
-
-function howManyOnline(){
-	return Object.keys(players).length;
 }
 
 function gameLoop(timestamp) {
@@ -101,7 +102,14 @@ function gameLoop(timestamp) {
 }
 
 function drawStuff() {
-	for(var id in players){
-		players[id].updateGraphics(context);
+	for(var id in things){
+		if(things[id].getComponent('renderer')){
+			things[id].getComponent('renderer').clear(context);
+		}
+	}
+	for(var id in things){
+		if(things[id].getComponent('renderer')){
+			things[id].getComponent('renderer').draw(context);
+		}
 	}
 }

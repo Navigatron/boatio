@@ -17,6 +17,9 @@ function onNameChosen(){
 	document.getElementById("namediv").style.display = "none";
 	//document.getElementById("questdiv").style.display = "block";
 	//Screw quest and color, just go right for the game.
+		document.getElementById("landing").style.display = "none";
+		document.getElementById("game").style.display = "block";
+		getGoin();
 	return false;
 }
 function askForANewName(field){

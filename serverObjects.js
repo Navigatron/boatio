@@ -42,7 +42,17 @@ class playerBrick extends shipBrick{
 
 //A hullBrick is a shipBrick
 class hull extends shipBrick{
-    //It's just a generic shipBrick.
+    constructor(id, x, y, r){
+        super('hull', id, x, y, r, 1, 10, 270, 15);//type, id, x, y, r, mass, move, rotate, Health
+        this.components.networkView = new components.networkView(this);
+    }
+}
+
+class cannon extends shipBrick{
+    constructor(id, x, y, r){
+        super('cannon', id, x, y, r, 1, 10, 270, 5);//type, id, x, y, r, mass, move, rotate, Health
+        this.components.networkView = new components.networkView(this);
+    }
 }
 
 //A thruster is a shipBrick
@@ -67,7 +77,7 @@ class player extends gameObject{
         this.components.rigidBody = new components.rigidBody(this, 1, 10, 270);
         //collider
         this.components.collider = new components.collider(this);
-        //networkView - So the client actually gets the data - TODO - player can distinguish types
+        //networkView - So the client actually gets the data
         this.components.networkView = new components.networkView(this);
         //We are the mamma duck. These the are wee lil duckies.
         this.ducklings = {};
@@ -116,6 +126,7 @@ module.exports = {
     shipBrick: shipBrick,
     playerBrick: playerBrick,
     hull: hull,
+    cannon: cannon,
     thruster: thruster,
     player: player
 };
