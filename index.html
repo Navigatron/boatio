@@ -2,10 +2,7 @@
 <html>
 	<head>
 		<title>BOATIO</title>
-		<!-- socket.io object code -->
-		<script src="/socket.io/socket.io.js"></script>
-		<!-- This handles selection of everything before we actually join a server-->
-		<script type="text/javascript" src="./clientLanding.js"></script>
+		<!-- Style the page to look how we like it -->
 		<link rel="stylesheet" type="text/css" href="./style.css">
 		<!-- Google analytics tacking code - more info is good. -->
 		<script>
@@ -55,6 +52,8 @@
 			<canvas id="canvas"></canvas>
 			<canvas id="bcanvas"></canvas>
 		</div>
+
+		<!-- Game image resources loaded here. javascript gets them as needed. -->
 		<div id='gameResources' style="display: none;">
 			<img id='square' src="./square.png"></img>
 			<img id='player' src="./player.png"></img>
@@ -62,6 +61,20 @@
 			<img id='thruster' src="./thruster.png"></img>
 			<img id='cannon' src="./cannon.png"></img>
 			<img id='thrust' src="./thrust.png"></img>
+		</div>
+
+		<!-- scripts at the bottom, so they don't load until After the user can see the page. -->
+		<div id='scripts'>
+			<!-- Handle user button presses while the rest of this loads. -->
+			<script type="text/javascript" src="./clientLanding.js"></script>
+			<!-- socket.io object code -->
+			<script src="/socket.io/socket.io.js"></script>
+			<!-- Game Resources -->
+			<script type="text/javascript" src="/clientGlobals.js"></script>
+			<script type="text/javascript" src="/clientComponents.js"></script>
+			<script type="text/javascript" src="/clientObjects.js"></script>
+			<!-- The code that sets it all in motion is added right under here, -->
+			<!-- Once the landing script determines it's okay to do so. -->
 		</div>
 	</body>
 </html>

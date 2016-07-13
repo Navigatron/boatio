@@ -4,12 +4,6 @@ class gameObject{
     constructor(type, id, X, Y, r){
         this.type = type;
         this.id = id;
-        this.position = {
-            x: X,
-            y: Y
-        };
-        this.rotation = r;
-        this.update = function(){return;};
         this.components = {
              transform: new transform(this, X, Y, r)
        };
@@ -18,6 +12,9 @@ class gameObject{
 }
 gameObject.prototype.getComponent = function(type){
       return this.components[type]?this.components[type]:null;
+};
+gameObject.prototype.update = function(deltaTime){
+    //This is defined so objects without an Update function don't make javascript climb the entire tree looking for one.
 };
 
 class shipBrick extends gameObject{
@@ -30,6 +27,12 @@ class shipBrick extends gameObject{
 }
 shipBrick.prototype.kys = function(context){
 	this.getComponent('renderer').clear(context);
+};
+shipBrick.prototype.attach = function(parent, x, y){
+    this.attached = true;
+    this.x = x;
+    this.y = y;
+    this.parent = parent;
 };
 
 //A playerBrick is a shipBrick
@@ -60,6 +63,14 @@ class thruster extends shipBrick{
         //this.components.networkView = new networkView(this);
     }
 }
+thruster.prototype.update = function(deltaTime){
+    //THIS IS DA PART WHERE WE MAKE DA ZOOOOM.
+    if(this.parent['_87']){
+        this.type = 'thrust';
+    }else{
+        this.type='thruster';
+    }
+};
 
 // Degrees to Radians! *(Math.PI/180)
 
@@ -74,18 +85,26 @@ class player extends gameObject{
         this._68= false;
         //Rigidbody - object, mass, topSpeed, topRotSpeed
         this.components.rigidBody = new rigidBody(this, 1, 10, 270);
+        //this.components.rigidBody.active = false; //Prevent updating
         //collider
         this.components.collider = new collider(this);
         //networkView - So the client actually gets the data
-        this.components.networkView = new networkView(this);
+        this.components.networkView = new networkView(this, function(extra){
+            //console.log('Handling extra data. this:'+this);
+            var vr = this.getComponent('rigidBody').velocity;
+            vr.x = extra.x;
+            vr.y = extra.y;
+            vr.r = extra.r;
+        });
         //We are the mamma duck. These the are wee lil duckies.
         this.ducklings = {};
         this.ducklings[0] = {};
-        //this.ducklings[0][0] = new playerBrick(getNewID(), x, y, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
-        //this.ducklings[0][-1] = new thruster(getNewID(), x, y-1, r, mass, topSpeed, topRotSpeed, health, sizex, sizey);
+
+        //This is where we make sure stuff happens.
         this.update = function(deltaTime){
-            //Handle Player Input
-            var vr = this.getComponent('rigidBody');
+            //Handle Player Input. Or don't.
+            //var vr = this.getComponent('rigidBody');
+            /*//Okay son. Don't apply our keypresses here because they mess up all kinds of synch issues.
             if(this._65)//A
                 vr.velocity.r += vr.acceleration.rotate*deltaTime;
             if(this._68)//D
@@ -99,13 +118,12 @@ class player extends gameObject{
     		if(this._83){//S
     			vr.velocity.x -= vector.x*vr.acceleration.move*deltaTime;
     			vr.velocity.y -= vector.y*vr.acceleration.move*deltaTime;
-    		}
+    		}//*/
             //Put the Ducks in the Boxes.
             for(x in this.ducklings){
                 for(y in this.ducklings[x]){
                     var tr = this.ducklings[x][y].transform;
                     tr.rotation = this.transform.rotation;
-                    //zero rotation - ??
                     var theta = (this.transform.rotation-90)*(Math.PI/180);
                     tr.position.x = Number(x)*Math.cos(theta)-Number(y)*Math.sin(theta)+this.transform.position.x;
                     tr.position.y = Number(y)*Math.cos(theta)+Number(x)*Math.sin(theta)+this.transform.position.y;
@@ -118,6 +136,14 @@ player.prototype.attach = function(duckling, x, y){
     if(!this.ducklings[x])
         this.ducklings[x] = {};
     this.ducklings[x][y] = duckling;
+    duckling.attach(this, x, y);
+};
+player.prototype.kys = function(duckling, x, y){
+    for(var x in this.ducklings){
+        for(var y in this.ducklings[x]){
+            this.ducklings[x][y].kys(context);
+        }
+    }
 };
 
 objects = {

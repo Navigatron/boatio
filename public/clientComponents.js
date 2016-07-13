@@ -4,6 +4,7 @@
 class component{
       constructor(object){
             this.object = object;
+            this.active = true;
       }
 }
 component.prototype.getComponent = function(type){
@@ -22,12 +23,11 @@ class transform extends component{
 }
 
 class networkView extends component{
-      constructor(object){
+      constructor(object, handle){//handle is a callback function for when we get extra data.
           super(object);
+          this.handle = handle;
       }
 }
-networkView.prototype.push = function(io){
-};
 
 class rigidBody extends component{
     constructor(object, mass, topSpeed, topRotSpeed){
@@ -66,6 +66,7 @@ rigidBody.prototype.magnitude = function(x, y){
     return Math.sqrt(x*x+y*y);
 };
 rigidBody.prototype.step = function(deltaTime){
+    if(!this.active) return;
     //Drag
     for(var key in this.velocity){
         var linearDragPerSecond = this.velocity[key] * this.dampening[key];

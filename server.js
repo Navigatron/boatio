@@ -34,14 +34,15 @@ function getNewID(){
 	return _idCounter;
 }
 
-function addForceAtPoint(rigidbody, forceOffsetX, forceOffsetY, forceVectorX,  forceVectorY){
-	// Linear Acceleration is Easy, just add it in there.
-	rigidbody.vx += forceVectorX;
-	rigidbody.vy += forceVectorY;
-	// Angular Acceleration is Haaard.
-	// Offset vector Crossproduct ForceVector - only need Z component - Divide by Moment of Inertia
-	var cross = forceOffsetX*forceVectorY - forceOffsetY * forceVectorX;
-}
+// This shouldnt exist.
+// function addForceAtPoint(rigidbody, forceOffsetX, forceOffsetY, forceVectorX,  forceVectorY){
+// 	// Linear Acceleration is Easy, just add it in there.
+// 	rigidbody.vx += forceVectorX;
+// 	rigidbody.vy += forceVectorY;
+// 	// Angular Acceleration is Haaard.
+// 	// Offset vector Crossproduct ForceVector - only need Z component - Divide by Moment of Inertia
+// 	var cross = forceOffsetX*forceVectorY - forceOffsetY * forceVectorX;
+// }
 
 function onNewPlayer(socket){
 	console.log(socket.id+' connected');
@@ -52,6 +53,15 @@ function onNewPlayer(socket){
 				type: things[key].type
 			});
 	}
+	for(var key in things){
+		if(things[key].type=='player'){
+			for(var x in things[key].ducklings){
+				for(var y in things[key].ducklings[x]){
+					socket.emit('attach',things[key].ducklings[x][y].id,key,x,y);
+				}
+			}
+		}
+	}
 	//id, x, y, r
 	var id = addNew(new sO.player(0, 0, 0, 90));
 	// Add the starter player bricks
@@ -61,12 +71,12 @@ function onNewPlayer(socket){
 	/-\   /-\
 
 	*/
-	things[id].attach(things[addNew(new sO.cannon(0,0,0,0))],	   0, 1);
-	things[id].attach(things[addNew(new sO.hull(0,0,0,0))],		  -1, 0);
-	things[id].attach(things[addNew(new sO.playerBrick(0,0,0,0))], 0, 0);
-	things[id].attach(things[addNew(new sO.hull(0,0,0,0))],		   1, 0);
-	things[id].attach(things[addNew(new sO.thruster(0,0,0,0))],   -1,-1);
-	things[id].attach(things[addNew(new sO.thruster(0,0,0,0))],    1,-1);
+	things[id].attach(io, things[addNew(new sO.cannon(0,0,0,0, true))],	       0, 1);
+	things[id].attach(io, things[addNew(new sO.hull(0,0,0,0, true))],		  -1, 0);
+	things[id].attach(io, things[addNew(new sO.playerBrick(0,0,0,0, true))],   0, 0);
+	things[id].attach(io, things[addNew(new sO.hull(0,0,0,0, true))],		   1, 0);
+	things[id].attach(io, things[addNew(new sO.thruster(0,0,0,0, true))],     -1,-1);
+	things[id].attach(io, things[addNew(new sO.thruster(0,0,0,0, true))],      1,-1);
 
 	players[socket.id] = id;
 	var tr = things[id].transform;
@@ -107,8 +117,8 @@ function gameLoop() {
 			things[id].getComponent('networkView').push(io);
 		}
 	}
-	//run me at 120 fps
-    setTimeout(gameLoop, 8);
+	//8 =120 fps. 50=20fps. Clients handle their own physics, we just keep track.
+    setTimeout(gameLoop, 50);
 }
 
 // ~~~~~~~~~~~~~~~ Initialization and Start ~~~~~~~~~~~~~~~

@@ -11,16 +11,11 @@
 // ~~~~~~~~~~~~~~~ Declaration of Variables ~~~~~~~~~~~~~~~
 
 // The cause (and solution) of all our problems.
-var socket = io.connect("http://boatio-boatio.rhcloud.com/");
-//var socket = io();
+var socket;
 // Who does the viewport look at?
 var playerToWatch;
-// All the players in game.
-var players = {};
 // All the things
 var things = {};
-// id -> type map.
-var typeOf = {};
 // type ->  object Class map.
 var objects = {};
 // The game canvas
@@ -44,6 +39,11 @@ var images = {
 	cannon: document.getElementById('cannon'),
 	thrust: document.getElementById('thrust')
 };
+
+// Timing Logic
+var lastUpdate;
+var now = +new Date();
+var deltaTime;
 
 // ~~~~~~~~~~~~~~~ Declaration of Functions ~~~~~~~~~~~~~~~
 
@@ -91,9 +91,21 @@ function updateBackground(){
 }
 
 function gameLoop(timestamp) {
+	//Calculate deltaTime
+	lastUpdate = now;
+	now = +new Date();
+	deltaTime = now - lastUpdate;
+	deltaTime/=1000;
     //Physics
+	for(var key in things){
+		if(things[key].getComponent('rigidBody'))
+			things[key].getComponent('rigidBody').step(deltaTime);
+	}
     //Collisions (lol no. I'm only writing this once. Just listen to the server.)
     //Object Update
+	for(var key in things){
+		things[key].update(deltaTime);
+	}
     //Draw to Screen
 	updateBackground();
 	drawStuff();

@@ -54,27 +54,12 @@ function onColorChosen(q){
 	return false;
 }
 
-//Load the game scripts
+//Load the game script
 //<script type="text/javascript" src="/client.js"></script>
 function getGoin(){
-	//First, Globals.
+	//All resources are already there. Once we get there, they /should/ be ready.
 	var newScript = document.createElement('script');
     newScript.type = 'text/javascript';
-    newScript.src = './clientGlobals.js';
-    document.getElementsByTagName('head')[0].appendChild(newScript);
-	//Then Components
-	newScript = document.createElement('script');
-    newScript.type = 'text/javascript';
-    newScript.src = './clientComponents.js';
-    document.getElementsByTagName('head')[0].appendChild(newScript);
-	//Then Objects
-	newScript = document.createElement('script');
-    newScript.type = 'text/javascript';
-    newScript.src = './clientObjects.js';
-    document.getElementsByTagName('head')[0].appendChild(newScript);
-	//Then the guy who runs this mess.
-    newScript = document.createElement('script');
-    newScript.type = 'text/javascript';
     newScript.src = './client.js';
-    document.getElementsByTagName('head')[0].appendChild(newScript);
+    document.getElementById('scripts').appendChild(newScript);
 }

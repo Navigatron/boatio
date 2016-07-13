@@ -4,6 +4,7 @@
 class component{
       constructor(object){
             this.object = object;
+            this.active = true;
       }
 }
 component.prototype.getComponent = function(type){
@@ -24,14 +25,17 @@ class transform extends component{
 class networkView extends component{
       constructor(object){
           super(object);
+          this.extra = {};//For extra data to sync.
       }
 }
 networkView.prototype.push = function(io){
+    if(!this.active) return;
     var data = {
         x: this.object.transform.position.x,
         y: this.object.transform.position.y,
-        r: this.object.transform.rotation
-        //How do we incorperate rigidbody data? TODO
+        r: this.object.transform.rotation,
+        //How do we incorperate rigidbody data? I got this bro, no worries.
+        extra: this.extra
     };
     io.emit('objectData', this.object.id, data);
 };
@@ -73,6 +77,7 @@ rigidBody.prototype.magnitude = function(x, y){
     return Math.sqrt(x*x+y*y);
 };
 rigidBody.prototype.step = function(deltaTime){
+    if(!this.active) return;
     //Drag
     for(var key in this.velocity){
         var linearDragPerSecond = this.velocity[key] * this.dampening[key];
