@@ -107,6 +107,16 @@ function gameLoop() {
 		}
 	}
 	//Collision Detection
+	var tested = {};
+	for(var id in things){
+		if(things[id].getComponent('collider') && !things[id].getComponent('collider').child){
+			tested[id]=true;
+			for(var ido in things){
+				if(id!=ido && things[ido].getComponent('collider') && !things[ido].getComponent('collider').child)
+					detectCollision(things[id].getComponent('collider'), things[ido].getComponent('collider'));
+			}
+		}
+	}
 	//Object update
 	for(var id in things){
 		things[id].update(deltaTime);
@@ -119,6 +129,96 @@ function gameLoop() {
 	}
 	//8 =120 fps. 50=20fps. Clients handle their own physics, we just keep track.
     setTimeout(gameLoop, 50);
+}
+
+function detectCollision(colliderA, colliderB){
+	var smallestAxis;
+	var overlap=99999;
+
+	var axis = colliderA.getAxis();
+	for (var index = 0; index < axis.length; ++index){
+		console.log('A['+index+']. x:'+axis[index].x+', y:'+axis[index].y+'.');
+		//Project A onto Axis AAAGGGGHHHHHHHHHH fine.
+		var projectionA = colliderA.project(axis[index]);
+		//Project B onto Axis
+		var projectionB = colliderB.project(axis[index]);
+		//If no overlap, return.
+		if(!doTheseProjectionsOverlap(projectionA, projectionB)){
+			return false;
+		}else{
+			var t = howMuchDoTheseProjectionsOverlap(projectionA, projectionB);
+			if(t<overlap){
+				overlap = t;
+				smallestAxis = axis[index];
+			}
+		}
+	}
+
+	//I'm not convinced we need all these axis.
+	axis = colliderB.getAxis();
+	for (var index = 0; index < axis.length; ++index){
+		//Project A onto Axis AAAGGGGHHHHHHHHHH fine.
+		var projectionA = colliderA.project(axis[index]);
+		//Project B onto Axis
+		var projectionB = colliderB.project(axis[index]);
+		//If no overlap, return.
+		if(!doTheseProjectionsOverlap(projectionA, projectionB)){
+			return false;
+		}else{
+			var t = howMuchDoTheseProjectionsOverlap(projectionA, projectionB);
+			if(t<overlap){
+				overlap = t;
+				smallestAxis = axis[index];
+			}
+		}
+	}
+	//If A is a parent
+		//Loop through A's Children
+			//detectCollision(A's child, B);
+			//return, we're done here.
+	//If B is a parent
+		//Loop through B's Children
+			//detectCollision(B's child, A);
+			//return, we're done here.
+
+	console.log('Yee there\'s a collision! a:'+colliderA.object.id+', b:'+colliderB.object.id+'.');
+	//There is a collision, All are not parents, Dispatch onCollision events to relevant parties.
+	//TODO - inverse overlap on one of these. Which one? Idk.
+	colliderA.object.onCollision(smallestAxis, overlap, colliderB);
+	colliderB.object.onCollision(smallestAxis, -overlap, colliderA);
+}
+
+function doTheseProjectionsOverlap(a, b){
+	if(a.max > b.min && a.max < b.max)//a.max is within B.
+		return true;
+	if(a.min > b.min && a.min < b.max)//a.min is within B.
+		return true;
+	if(b.max > a.min && b.max < a.max)//b.max is within A.
+		return true;
+	if(b.min > a.min && b.min < a.max)//b.min is within A.
+		return true;
+	return false;
+}
+
+function howMuchDoTheseProjectionsOverlap(a, b){//This is really hard.
+	//    |---------|
+	//        |<-?->|
+	//        |---------|
+	if(a.max > b.min && a.max < b.max){//a.max is within B
+		if(a.min > b.min && a.min < b.max){//A is completely within B.
+			return Math.min(a.max-b.min,b.max-a.min);
+		}else{//Only a.max is within B.
+			return a.max-b.min;
+		}
+	}else if(a.min > b.min && a.min < b.max){//Only a.min is within B.
+		return b.max-a.min;
+	}else{//A is not within B... either No overlap, or A contains B.
+		if(b.max<a.max && b.min>a.min){//B is completely within A. Now what.
+			return Math.min(b.max-a.min, a.max-b.min);
+		}else{//There was no overlap.
+			console.log('These two projections do not overlap.');
+		}
+	}
 }
 
 // ~~~~~~~~~~~~~~~ Initialization and Start ~~~~~~~~~~~~~~~
@@ -148,7 +248,8 @@ io.on('connection',function(socket){
 	socket.on('disconnect',function(){
 		console.log(socket.id+' disconnected');
 		io.emit('player disconnected', players[socket.id]);
-		delete things[players[socket.id]]
+		things[players[socket.id]].kys(things);
+		//delete things[players[socket.id]]//handled by playerObject.
 		delete players[socket.id];
 	});
 

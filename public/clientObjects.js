@@ -142,6 +142,7 @@ player.prototype.kys = function(duckling, x, y){
     for(var x in this.ducklings){
         for(var y in this.ducklings[x]){
             this.ducklings[x][y].kys(context);
+            delete things[this.ducklings[x][y].id];
         }
     }
 };

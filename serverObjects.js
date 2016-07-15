@@ -20,6 +20,18 @@ gameObject.prototype.getComponent = function(type){
 gameObject.prototype.update = function(deltaTime){
     //yeah.
 };
+gameObject.prototype.onCollision = function(axis, overlap, otherCollider){
+    if(this.getComponent('rigidBody')){
+        this.getComponent('rigidBody').addLinearForce(axis.x*overlap, axis.y*overlap);//TODO - sometimes axis is undefined. XD
+    }else if(!otherCollider.object.getComponent('rigidBody')){
+        console.log('Hey! Two static objects are colliding.');
+    }
+};
+gameObject.prototype.kys = function(things){
+    delete things[this.id];
+};
+
+
 class shipBrick extends gameObject{
     constructor(type, id, x, y, r, mass, topSpeed, topRotSpeed, health, attached){
         super(type, id, x, y, r);//, mass, topSpeed, topRotSpeed);
@@ -28,6 +40,8 @@ class shipBrick extends gameObject{
         this.attached = attached;
         this.components.networkView = new components.networkView(this);
         this.components.networkView.active = !attached;//If we're on a boat, don't worry about networks.
+        //Give us a collider with the default mesh.
+        this.components.collider = new components.collider(this, [{x:-0.5,y:-0.5},{x:-0.5,y:0.5},{x:0.5,y:0.5},{x:0.5,y:-0.5}]);
     }
 }
 
@@ -71,7 +85,7 @@ class player extends gameObject{
         //Rigidbody - object, mass, topSpeed, topRotSpeed
         this.components.rigidBody = new components.rigidBody(this, 1, 10, 270);
         //collider
-        this.components.collider = new components.collider(this);
+        this.components.collider = new components.collider(this, [{x:-0.5,y:-0.5},{x:-0.5,y:0.5},{x:0.5,y:0.5},{x:0.5,y:-0.5}]);
         //networkView - So the client actually gets the data
         this.components.networkView = new components.networkView(this);
         //We are the mamma duck. These the are wee lil duckies.
@@ -123,8 +137,17 @@ player.prototype.attach = function(io, duckling, x, y){
     if(!this.ducklings[x])
         this.ducklings[x] = {};
     this.ducklings[x][y] = duckling;
+    this.getComponent('collider').attach(duckling.getComponent('collider'));
     //attach A to B at X,Y
     io.emit('attach', duckling.id, this.id, x, y);
+};
+player.prototype.kys = function(things){
+    for(var x in this.ducklings){
+        for(var y in this.ducklings[x]){
+            this.ducklings[x][y].kys(things);
+            delete things[this.id];
+        }
+    }
 };
 
 module.exports = {

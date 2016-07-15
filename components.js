@@ -95,11 +95,76 @@ rigidBody.prototype.getQuadraticDrag = function(maximumVelocity, actualVelocity)
 };
 
 class collider extends component{
-      constructor(object){
-          super(object);
-//Does this have children?
-//List of child objects
-      }
+    constructor(object, mesh){
+        super(object);
+        //Vertecies - array of objects - each object {x:,y:}
+        this.mesh = mesh;
+        this.rotatedMesh = [{},{},{},{}];
+        //Are we a top-level collider?
+        this.child = false;
+        //Does this have children?
+        this.hasChildren = false;
+        //List of child objects
+        this.children = [];
+    }
+}
+collider.prototype.attach =  function(child){
+    this.hasChildren = true;
+    this.children.push(child);
+    child.child = true;
+};
+collider.prototype.getAxis = function(){
+    var ret = []; //this to return
+    //Apply rotation to each Vertex.
+    this.rotateMesh();
+    //LoopdeyLoop and stuff.
+    for (var index = 0; index < this.rotatedMesh.length; ++index){
+        var index2 = index==this.rotatedMesh.length-1?0:index+1;
+        var axis = {x:this.rotatedMesh[index].y-this.rotatedMesh[index2].y,y:-(this.rotatedMesh[index].x-this.rotatedMesh[index2].x)};
+        axis = normalize(axis);
+        ret.push(axis);
+    }
+    //If two of the axis are parallel, remove one of them.
+    for (var index = 0; index < ret.length; ++index){
+        for (var index2 = 0; index2 < ret.length; ++index2){
+            if(index!=index2 && ret[index] && ret[index2] && ret[index].x/ret[index2].x == ret[index].y/ret[index2].y)
+                ret.splice(index2, 1);
+        }
+    }
+    return ret;
+};
+collider.prototype.rotateMesh = function(){
+    this.rotatedMesh.length = this.mesh.length;
+    for (var index = 0; index < this.mesh.length; ++index){
+        this.rotatedMesh[index] = {};
+        var theta = (this.object.transform.rotation-90)*(Math.PI/180);
+        this.rotatedMesh[index].x = Number(this.mesh[index].x)*Math.cos(theta)-Number(this.mesh[index].y)*Math.sin(theta)+this.object.transform.position.x;
+        this.rotatedMesh[index].y = Number(this.mesh[index].y)*Math.cos(theta)+Number(this.mesh[index].x)*Math.sin(theta)+this.object.transform.position.y;
+    }
+};
+collider.prototype.project = function(axis){//axis = {x:,y:}
+    var max = dotProduct(this.rotatedMesh[0], axis);
+    var min = max;
+    for (var index = 0; index < this.rotatedMesh.length; ++index){
+        var d = dotProduct(this.rotatedMesh[index], axis);
+        if(d>max){
+            max = d;
+        }else if(d<min){
+            min = d;
+        }
+    }
+    return {min:min, max:max};
+};
+
+function normalize(axis){//axis = {x:,y:}
+    var length = Math.sqrt(axis.x*axis.x+axis.y*axis.y);
+    axis.x/=length;
+    axis.y/=length;
+    return axis;
+}
+
+function dotProduct(a, b){
+    return a.x*b.x+a.y*b.y;
 }
 
 module.exports = {
