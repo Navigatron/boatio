@@ -20,11 +20,13 @@ gameObject.prototype.getComponent = function(type){
 gameObject.prototype.update = function(deltaTime){
     //yeah.
 };
-gameObject.prototype.onCollision = function(axis, overlap, otherCollider){
+gameObject.prototype.onCollision = function(axis, overlap, otherCollider, deltaTime){
     if(this.getComponent('rigidBody')){
-        this.getComponent('rigidBody').addLinearForce(axis.x*overlap, axis.y*overlap);//TODO - sometimes axis is undefined. XD
+        this.transform.translate(axis.x*overlap/2, axis.y*overlap/2);
+        var impactSpeed = overlap/deltaTime;//Push back equal to the impact speed yee
+        this.getComponent('rigidBody').addLinearForce(axis.x*impactSpeed, axis.y*impactSpeed);
     }else if(!otherCollider.object.getComponent('rigidBody')){
-        console.log('Hey! Two static objects are colliding.');
+        console.log('Hey! Two static objects are colliding. Better fix that. this:'+this.id+', other:'+otherCollider.object.id+'.');
     }
 };
 gameObject.prototype.kys = function(things){
@@ -44,6 +46,9 @@ class shipBrick extends gameObject{
         this.components.collider = new components.collider(this, [{x:-0.5,y:-0.5},{x:-0.5,y:0.5},{x:0.5,y:0.5},{x:0.5,y:-0.5}]);
     }
 }
+shipBrick.prototype.onCollision = function(axis, overlap, otherCollider, deltaTime){
+    this.transform.parent.onCollision(axis, overlap, otherCollider, deltaTime);
+};
 
 //A playerBrick is a shipBrick
 class playerBrick extends shipBrick{
@@ -85,7 +90,7 @@ class player extends gameObject{
         //Rigidbody - object, mass, topSpeed, topRotSpeed
         this.components.rigidBody = new components.rigidBody(this, 1, 10, 270);
         //collider
-        this.components.collider = new components.collider(this, [{x:-0.5,y:-0.5},{x:-0.5,y:0.5},{x:0.5,y:0.5},{x:0.5,y:-0.5}]);
+        this.components.collider = new components.collider(this, [{x:-1.5,y:-1.5},{x:-1.5,y:1.5},{x:1.5,y:1.5},{x:1.5,y:-1.5}]);
         //networkView - So the client actually gets the data
         this.components.networkView = new components.networkView(this);
         //We are the mamma duck. These the are wee lil duckies.
@@ -137,6 +142,9 @@ player.prototype.attach = function(io, duckling, x, y){
     if(!this.ducklings[x])
         this.ducklings[x] = {};
     this.ducklings[x][y] = duckling;
+    //Make the duckling a child object
+    duckling.transform.parent = this;
+    //Envelope the duckling collider
     this.getComponent('collider').attach(duckling.getComponent('collider'));
     //attach A to B at X,Y
     io.emit('attach', duckling.id, this.id, x, y);

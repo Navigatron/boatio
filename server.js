@@ -107,13 +107,15 @@ function gameLoop() {
 		}
 	}
 	//Collision Detection
-	var tested = {};
 	for(var id in things){
 		if(things[id].getComponent('collider') && !things[id].getComponent('collider').child){
-			tested[id]=true;
 			for(var ido in things){
-				if(id!=ido && things[ido].getComponent('collider') && !things[ido].getComponent('collider').child)
-					detectCollision(things[id].getComponent('collider'), things[ido].getComponent('collider'));
+				if(id==ido)continue;//Do not test a thing against itself.
+				if(!things[ido].getComponent('collider'))continue;//Do not test if the other thing does not have a collider
+				if( things[ido].getComponent('collider').child)continue;//Do not test if the other collider is a child
+				if(ido>id)continue;//Now this is the part that drives me crazy. Do not test if ido is a lower id than id.
+				//console.log('Testing '+id+' and '+ido+'.');
+				detectCollision(things[id].getComponent('collider'), things[ido].getComponent('collider'));
 			}
 		}
 	}
@@ -133,92 +135,66 @@ function gameLoop() {
 
 function detectCollision(colliderA, colliderB){
 	var smallestAxis;
-	var overlap=99999;
-
-	var axis = colliderA.getAxis();
+	var overlap=99999999999;
+	colliderA.rotateMesh();
+	colliderB.rotateMesh();
+	var axis = colliderA.getAxis().concat(colliderB.getAxis());
 	for (var index = 0; index < axis.length; ++index){
-		console.log('A['+index+']. x:'+axis[index].x+', y:'+axis[index].y+'.');
+		//console.log('A['+index+']. x:'+axis[index].x+', y:'+axis[index].y+'.');
 		//Project A onto Axis AAAGGGGHHHHHHHHHH fine.
 		var projectionA = colliderA.project(axis[index]);
 		//Project B onto Axis
 		var projectionB = colliderB.project(axis[index]);
 		//If no overlap, return.
 		if(!doTheseProjectionsOverlap(projectionA, projectionB)){
+			//console.log('No Collision between '+colliderA.object.id+' and '+colliderB.object.id+',  1, along axis x:'+axis[index].x+', y:'+axis[index].y+'.');
 			return false;
 		}else{
 			var t = howMuchDoTheseProjectionsOverlap(projectionA, projectionB);
-			if(t<overlap){
+			if(absMin(t,overlap)==t){
 				overlap = t;
-				smallestAxis = axis[index];
-			}
-		}
-	}
-
-	//I'm not convinced we need all these axis.
-	axis = colliderB.getAxis();
-	for (var index = 0; index < axis.length; ++index){
-		//Project A onto Axis AAAGGGGHHHHHHHHHH fine.
-		var projectionA = colliderA.project(axis[index]);
-		//Project B onto Axis
-		var projectionB = colliderB.project(axis[index]);
-		//If no overlap, return.
-		if(!doTheseProjectionsOverlap(projectionA, projectionB)){
-			return false;
-		}else{
-			var t = howMuchDoTheseProjectionsOverlap(projectionA, projectionB);
-			if(t<overlap){
-				overlap = t;
-				smallestAxis = axis[index];
+				smallestAxis = index;
 			}
 		}
 	}
 	//If A is a parent
-		//Loop through A's Children
-			//detectCollision(A's child, B);
-			//return, we're done here.
+	if(colliderA.hasChildren){
+		for(var index = 0; index < colliderA.children.length; ++index){
+			detectCollision(colliderA.children[index],colliderB);
+		}
+		return;//We're done here.
+	}
 	//If B is a parent
-		//Loop through B's Children
-			//detectCollision(B's child, A);
-			//return, we're done here.
+	if(colliderB.hasChildren){
+		for(var index = 0; index < colliderB.children.length; ++index){
+			detectCollision(colliderB.children[index],colliderA);
+		}
+		return;//We're done here.
+	}
 
-	console.log('Yee there\'s a collision! a:'+colliderA.object.id+', b:'+colliderB.object.id+'.');
+	//console.log('Object:'+colliderA.object.id+' is colliding with:'+colliderB.object.id+'. smallestAxis:'+smallestAxis+'.');
 	//There is a collision, All are not parents, Dispatch onCollision events to relevant parties.
 	//TODO - inverse overlap on one of these. Which one? Idk.
-	colliderA.object.onCollision(smallestAxis, overlap, colliderB);
-	colliderB.object.onCollision(smallestAxis, -overlap, colliderA);
+	colliderA.object.onCollision(axis[smallestAxis], overlap, colliderB, deltaTime);
+	colliderB.object.onCollision(axis[smallestAxis],-overlap, colliderA, deltaTime);
 }
 
 function doTheseProjectionsOverlap(a, b){
-	if(a.max > b.min && a.max < b.max)//a.max is within B.
+	if(a.max > b.min && a.max < b.max)//a.max containment
 		return true;
-	if(a.min > b.min && a.min < b.max)//a.min is within B.
+	if(a.min > b.min && a.min < b.max)//a.min containment
 		return true;
-	if(b.max > a.min && b.max < a.max)//b.max is within A.
-		return true;
-	if(b.min > a.min && b.min < a.max)//b.min is within A.
+	if(a.max > b.min && a.min < b.max)//total containment, also handles perfect overlap.
 		return true;
 	return false;
 }
 
 function howMuchDoTheseProjectionsOverlap(a, b){//This is really hard.
-	//    |---------|
-	//        |<-?->|
-	//        |---------|
-	if(a.max > b.min && a.max < b.max){//a.max is within B
-		if(a.min > b.min && a.min < b.max){//A is completely within B.
-			return Math.min(a.max-b.min,b.max-a.min);
-		}else{//Only a.max is within B.
-			return a.max-b.min;
-		}
-	}else if(a.min > b.min && a.min < b.max){//Only a.min is within B.
-		return b.max-a.min;
-	}else{//A is not within B... either No overlap, or A contains B.
-		if(b.max<a.max && b.min>a.min){//B is completely within A. Now what.
-			return Math.min(b.max-a.min, a.max-b.min);
-		}else{//There was no overlap.
-			console.log('These two projections do not overlap.');
-		}
-	}
+	return absMin(b.max-a.min, -(a.max-b.min));
+}
+
+function absMin(a,b){//returns the one closer to Zero.
+	return Math.abs(a)<Math.abs(b)?a:b;
 }
 
 // ~~~~~~~~~~~~~~~ Initialization and Start ~~~~~~~~~~~~~~~

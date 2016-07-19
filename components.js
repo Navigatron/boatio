@@ -10,17 +10,29 @@ class component{
 component.prototype.getComponent = function(type){
       return this.object.getComponent(type);
 };
+component.prototype.update = function(){};
 
 class transform extends component{
-      constructor(object, X, Y, r){
+      constructor(object, X, Y, r, parent){
             super(object);
             this.position = {
                   x: X,
                   y: Y
             };
             this.rotation = r;
+            if(parent) this.parent = parent;
+
+            //get parent(){return this.parent;};
+            //set parent(parent){this.parent = parent;};
       }
 }
+transform.prototype.translate = function(x, y){
+    this.position.x += x;
+    this.position.y += y;
+};
+transform.prototype.update = function(){
+
+};
 
 class networkView extends component{
       constructor(object){
@@ -116,7 +128,7 @@ collider.prototype.attach =  function(child){
 collider.prototype.getAxis = function(){
     var ret = []; //this to return
     //Apply rotation to each Vertex.
-    this.rotateMesh();
+    //this.rotateMesh();
     //LoopdeyLoop and stuff.
     for (var index = 0; index < this.rotatedMesh.length; ++index){
         var index2 = index==this.rotatedMesh.length-1?0:index+1;

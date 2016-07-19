@@ -1,8 +1,8 @@
 'use strict';
 
 //Connect to the server. Everything has been initialized.
-	socket = io.connect("http://boatio-boatio.rhcloud.com/");
-// 	socket = io();
+//	socket = io.connect("http://boatio-boatio.rhcloud.com/");
+ 	socket = io();
 
 // ~~~~~~~~~~~~~~~ Run this mess. ~~~~~~~~~~~~~~~
 
@@ -39,7 +39,7 @@ socket.on('objectData', function(id, data){
 				things[id].getComponent('networkView').handle(data.extra);
 		}
 	}else{
-		console.warn('Got object data  for something that doesnt exist');
+		console.warn('Got object data for something that doesnt exist');
 	}
 });
 
